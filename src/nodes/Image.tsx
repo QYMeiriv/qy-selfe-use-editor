@@ -125,6 +125,7 @@ export default class Image extends Node {
   private firstSize = false;
   private imgPos;
   private imgSrc;
+  private delTranction;
 
   get name() {
     return "image";
@@ -346,14 +347,17 @@ export default class Image extends Node {
 
     // 失去宽高input的焦点编辑
     const blurIsShowImgSize = (e: any) => {
+
       this.firstSize = false;
       if (this.iptWidth && this.iptHeight) {
         const { view } = this.editor;
         const { schema } = view.state;
+        const delTranction = view.state.tr.deleteSelection();
+        this.delTranction = delTranction;
         this.options
           .changeImgSize(this.iptWidth, this.iptHeight, this.imgSrc)
           .then(src => {
-          console.log("res", src);
+            view.dispatch(this.delTranction);
           const te = schema.nodes.image.create({ src });
             const transction = view.state.tr.replaceWith(
               this.imgPos,
@@ -363,9 +367,9 @@ export default class Image extends Node {
           view.dispatch(transction);
           this.iptHeight = null;
           this.iptWidth = null;
+        }).catch(() => {
+          throw new Error("修改图片尺寸失败");
         });
-        const delTranction = view.state.tr.deleteSelection();
-        view.dispatch(delTranction);
       };
     }
     return (
@@ -395,20 +399,25 @@ export default class Image extends Node {
           />
           {/* 修改图片宽高 */}
           <SizeWrapper style={{ display: isSelected ? "block" : "none" }}>
-            <input
+            <FlexWrapper>
+              <span>宽：</span>
+              <input
               onBlur={blurIsShowImgSize}
               type="text"
-              placeholder="请输入宽度"
               className="imgSize-ipt img-w"
               onChange={e => changeImgSize(e, "width")}
             />
-            <input
+            </FlexWrapper>
+
+            <FlexWrapper>
+              <span>高：</span>
+              <input
               onBlur={blurIsShowImgSize}
               type="text"
-              placeholder="请输入高度"
               className="imgSize-ipt img-h"
               onChange={e => changeImgSize(e, "height")}
             />
+          </FlexWrapper>
           </SizeWrapper>
         </ImageWrapper>
         <Caption
@@ -575,6 +584,12 @@ const SizeWrapper = styled.div`
   border-radius: 5px;
   margin-top: 4px;
 `;
+
+const FlexWrapper = styled.div`
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+`
 
 const ImageWrapper = styled.span`
   line-height: 0;
