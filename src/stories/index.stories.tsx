@@ -204,7 +204,7 @@ Placeholder.args = {
 export const Images = Template.bind({});
 Images.args = {
   defaultValue: `# Images
-![我的头像](https://p26-passport.byteacctimg.com/img/user-avatar/fb7da6c60a2ae18d9abaf2d8932ff41f~300x300.image)`,
+![我的头像](http://ls.liulianpisa.top:6724/static/image/671/c1e93531e7ebd81350d1315883a60de11639052442.png)`,
 };
 
 export const Focused = Template.bind({});

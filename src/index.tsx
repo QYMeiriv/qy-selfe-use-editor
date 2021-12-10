@@ -22,6 +22,7 @@ import BlockMenu from "./components/BlockMenu";
 import EmojiMenu from "./components/EmojiMenu";
 import LinkToolbar from "./components/LinkToolbar";
 import Tooltip from "./components/Tooltip";
+
 import Extension from "./lib/Extension";
 import ExtensionManager from "./lib/ExtensionManager";
 import ComponentView from "./lib/ComponentView";
@@ -134,6 +135,7 @@ export type Props = {
   handleDOMEvents?: {
     [name: string]: (view: EditorView, event: Event) => boolean;
   };
+  changeImgSize?: (imgWidth: number, imgHeight: number) => Promise<string>;
   uploadImage?: (file: File) => Promise<string>;
   onBlur?: () => void;
   onFocus?: () => void;
@@ -347,6 +349,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
             onImageUploadStart: this.props.onImageUploadStart,
             onImageUploadStop: this.props.onImageUploadStop,
             onShowToast: this.props.onShowToast,
+            changeImgSize: this.props.changeImgSize,
           }),
           new Table(),
           new TableCell({

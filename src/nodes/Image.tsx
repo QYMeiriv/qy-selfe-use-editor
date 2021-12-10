@@ -8,6 +8,7 @@ import getDataTransferFiles from "../lib/getDataTransferFiles";
 import uploadPlaceholderPlugin from "../lib/uploadPlaceholder";
 import insertFiles from "../commands/insertFiles";
 import Node from "./Node";
+import { isNumber } from "lodash";
 
 /**
  * Matches following attributes in Markdown-typed image: [, alt, src, class]
@@ -106,6 +107,7 @@ const downloadImageNode = async node => {
 
   // create a temporary link node and click it with our image data
   const link = document.createElement("a");
+  console.log("imageBlob", imageBlob.type);
   link.href = imageURL;
   link.download = `${potentialName}.${extension}`;
   document.body.appendChild(link);
@@ -116,6 +118,12 @@ const downloadImageNode = async node => {
 };
 
 export default class Image extends Node {
+  private imgWidth;
+  private imgHeight;
+  private iptWidth;
+  private iptHeight;
+  private firstSize = false;
+
   get name() {
     return "image";
   }
@@ -233,15 +241,33 @@ export default class Image extends Node {
     view.dispatch(transaction);
   };
 
+  /**
+   * @description 点击当前内容的图片
+   * @version 1.1.0
+   * @author 弹吉他的CoderQ
+   */
   handleSelect = ({ getPos, node }) => event => {
     event.preventDefault();
-
     const { view } = this.editor;
     const $pos = view.state.doc.resolve(getPos());
     const transaction = view.state.tr.setSelection(new NodeSelection($pos));
     view.dispatch(transaction);
-    node.attrs.src = "https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2017/9/23/25b3080ab64647b1f4e09bd1fcf241bc~tplv-t2oaga2asx-zoom-crop-mark:1304:1304:1304:734.awebp";
-    console.log("聚焦图片", event, $pos, node);
+
+    // 获取点击时候的图片dom实例
+    let imgNode = event.target.childNodes[1];
+    // 这里是因为初次点击可能第一个target就是img，但是二次点击之后target可能会有多一个span所以就要做判断
+    if (!imgNode) {
+      imgNode = event.target;
+    }
+    /* 
+    firstSize的用途主要解决点击图片之后点击下方的宽高input会再次触发这个事件导致拿到的是input的宽高了 
+    所以只对初次拿的图片做存储
+    */
+    if (!this.firstSize && !this.iptHeight && !this.iptWidth) {
+      this.imgWidth = imgNode.offsetWidth;
+      this.imgHeight = imgNode.offsetHeight;
+      this.firstSize = true;
+    }
   };
 
   handleDownload = ({ node }) => event => {
@@ -256,6 +282,84 @@ export default class Image extends Node {
     const { alt, src, title, layoutClass } = props.node.attrs;
     const className = layoutClass ? `image image-${layoutClass}` : "image";
 
+   if (!isSelected) {
+  }
+
+    // 宽高触发文本事件
+    const changeImgSize = (e: any, type) => {
+      const val = e.target.value;
+      const domHeight = document.getElementsByClassName("img-h");
+      const domWidth = document.getElementsByClassName("img-w");
+      const equalProportion =
+        parseInt(this.imgWidth) / parseInt(this.imgHeight);
+
+      if (!val) {
+        if(type === "width") {
+          for (let i = 0; i < domHeight.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            domHeight[i].value = null;
+          }
+        }
+
+        if (type === "height") {
+          for (let i = 0; i < domWidth.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            domWidth[i].value = null;
+          }
+        }
+        return;
+      }
+      if (type === "width") {
+        this.iptWidth = val;
+        for (let i = 0; i < domHeight.length; i++) {
+          this.iptHeight = Math.trunc(val / equalProportion);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          domHeight[i].value = this.iptHeight;
+        }
+      }
+
+      if (type === "height") {
+        this.iptHeight = val;
+        for (let i = 0; i < domWidth.length; i++) {
+          this.iptWidth = Math.trunc(val / equalProportion);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          domWidth[i].value = this.iptWidth;
+        }
+      }
+    };
+
+    const testtApi = async () => {
+      const src = "http://ls.liulianpisa.top:6724/static/image/39/61b2015ce8fd41639055708.png";
+      return new Promise((resolve, reject) => {
+        let timerId = setTimeout(() => {
+          resolve(src);
+          clearTimeout(timerId);
+        }, 2000);
+      });
+    };
+
+    // 失去宽高input的焦点编辑
+    const blurIsShowImgSize = (e: any) => {
+      this.firstSize = false;
+      if (this.iptWidth && this.iptHeight) {
+        const { view } = this.editor;
+        const { schema } = view.state;
+        this.options.changeImgSize(this.iptWidth, this.iptHeight).then(src => {
+          console.log("res", src);
+          const te = schema.nodes.image.create({ src });
+          const transction = view.state.tr.replaceWith(9, 9, te);
+          view.dispatch(transction);
+          this.iptHeight = null;
+          this.iptWidth = null;
+        });
+        const delTranction = view.state.tr.deleteSelection();
+        view.dispatch(delTranction);
+      };
+    }
     return (
       <div contentEditable={false} className={className}>
         <ImageWrapper
@@ -281,10 +385,23 @@ export default class Image extends Node {
             }}
             shouldRespectMaxDimension
           />
-          <SizeWrapper>
-            <input type="text" placeholder="请输入宽度" />
-            <input type="text" placeholder="请输入高度" />
-        </SizeWrapper>
+          {/* 修改图片宽高 */}
+          <SizeWrapper style={{ display: isSelected ? "block" : "none" }}>
+            <input
+              onBlur={blurIsShowImgSize}
+              type="text"
+              placeholder="请输入宽度"
+              className="imgSize-ipt img-w"
+              onChange={e => changeImgSize(e, "width")}
+            />
+            <input
+              onBlur={blurIsShowImgSize}
+              type="text"
+              placeholder="请输入高度"
+              className="imgSize-ipt img-h"
+              onChange={e => changeImgSize(e, "height")}
+            />
+          </SizeWrapper>
         </ImageWrapper>
         <Caption
           onKeyDown={this.handleKeyDown(props)}
@@ -430,7 +547,6 @@ const Button = styled.button`
   cursor: pointer;
   opacity: 0;
   transition: opacity 100ms ease-in-out;
-  border: 1px solid red;
 
   &:active {
     transform: scale(0.98);
@@ -443,8 +559,13 @@ const Button = styled.button`
 `;
 
 const SizeWrapper = styled.div`
+  flex-direction: column;
+  display: flex;
+  justify-content: space-between;
   position: relative;
   display: none;
+  border-radius: 5px;
+  margin-top: 4px;
 `;
 
 const ImageWrapper = styled.span`
@@ -455,9 +576,6 @@ const ImageWrapper = styled.span`
   &:hover {
     ${Button} {
       opacity: 0.9;
-    }
-    ${SizeWrapper} {
-      display: block;
     }
   }
 `;
@@ -485,4 +603,3 @@ const Caption = styled.p`
     pointer-events: none;
   }
 `;
-

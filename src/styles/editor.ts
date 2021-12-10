@@ -889,6 +889,28 @@ export const StyledEditor = styled("div")<{
     transition: border 250ms ease-in-out 0s;
   }
 
+  .imgSize-ipt {
+    width: 70px;
+    padding: 10px;
+    background: #2F3336;
+    color: #fff;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+
+    &:first-child {
+      margin-right: 10px;
+    }
+  }
+
+  .imgSize-ipt::-webkit-input-placeholder {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    outline: none;
+}
+
   .scrollable-shadow {
     position: absolute;
     top: 0;
