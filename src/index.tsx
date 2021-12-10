@@ -135,7 +135,11 @@ export type Props = {
   handleDOMEvents?: {
     [name: string]: (view: EditorView, event: Event) => boolean;
   };
-  changeImgSize?: (imgWidth: number, imgHeight: number) => Promise<string>;
+  changeImgSize?: (
+    imgWidth: number,
+    imgHeight: number,
+    url: string
+  ) => Promise<string>;
   uploadImage?: (file: File) => Promise<string>;
   onBlur?: () => void;
   onFocus?: () => void;

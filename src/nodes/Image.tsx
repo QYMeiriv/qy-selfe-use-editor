@@ -123,6 +123,8 @@ export default class Image extends Node {
   private iptWidth;
   private iptHeight;
   private firstSize = false;
+  private imgPos;
+  private imgSrc;
 
   get name() {
     return "image";
@@ -253,6 +255,9 @@ export default class Image extends Node {
     const transaction = view.state.tr.setSelection(new NodeSelection($pos));
     view.dispatch(transaction);
 
+    console.log("$pos", $pos.pos, node.attrs.src, );
+    this.imgPos = $pos.pos;
+    this.imgSrc = node.attrs.src;
     // 获取点击时候的图片dom实例
     let imgNode = event.target.childNodes[1];
     // 这里是因为初次点击可能第一个target就是img，但是二次点击之后target可能会有多一个span所以就要做判断
@@ -281,9 +286,6 @@ export default class Image extends Node {
     const { theme, isSelected } = props;
     const { alt, src, title, layoutClass } = props.node.attrs;
     const className = layoutClass ? `image image-${layoutClass}` : "image";
-
-   if (!isSelected) {
-  }
 
     // 宽高触发文本事件
     const changeImgSize = (e: any, type) => {
@@ -348,10 +350,16 @@ export default class Image extends Node {
       if (this.iptWidth && this.iptHeight) {
         const { view } = this.editor;
         const { schema } = view.state;
-        this.options.changeImgSize(this.iptWidth, this.iptHeight).then(src => {
+        this.options
+          .changeImgSize(this.iptWidth, this.iptHeight, this.imgSrc)
+          .then(src => {
           console.log("res", src);
           const te = schema.nodes.image.create({ src });
-          const transction = view.state.tr.replaceWith(9, 9, te);
+            const transction = view.state.tr.replaceWith(
+              this.imgPos,
+              this.imgPos,
+              te
+            );
           view.dispatch(transction);
           this.iptHeight = null;
           this.iptWidth = null;
