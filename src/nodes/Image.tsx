@@ -118,14 +118,24 @@ const downloadImageNode = async node => {
 };
 
 export default class Image extends Node {
+  // 图片当前的宽度
   private imgWidth;
+  // 图片当前的高度
   private imgHeight;
+  // 设置图片宽度的值
   private iptWidth;
+  // 设置图片高度的值
   private iptHeight;
+  // 用于控制初次拿到图片的值
   private firstSize = false;
+  // 当前图片节点的位置
   private imgPos;
+  // 当前图片的地址
   private imgSrc;
-  private delTranction;
+  // 删除当前节点的储存
+  private delTransaction;
+  // 存储当前的图片的alt
+  private imgAlt;
 
   get name() {
     return "image";
@@ -177,6 +187,7 @@ export default class Image extends Node {
               src: dom.getAttribute("src"),
               alt: dom.getAttribute("alt"),
               title: dom.getAttribute("title"),
+              width: dom.getAttribute("width"),
             };
           },
         },
@@ -225,7 +236,7 @@ export default class Image extends Node {
   };
 
   handleBlur = ({ node, getPos }) => event => {
-    const alt = event.target.innerText;
+    const alt = "2123";
     const { src, title, layoutClass } = node.attrs;
 
     if (alt === node.attrs.alt) return;
@@ -235,6 +246,7 @@ export default class Image extends Node {
 
     // update meta on object
     const pos = getPos();
+
     const transaction = tr.setNodeMarkup(pos, undefined, {
       src,
       alt,
@@ -256,7 +268,8 @@ export default class Image extends Node {
     const transaction = view.state.tr.setSelection(new NodeSelection($pos));
     view.dispatch(transaction);
 
-    console.log("$pos", $pos.pos, node.attrs.src, );
+    // 存储当前图片的alt
+    this.imgAlt = node.attrs.alt;
     this.imgPos = $pos.pos;
     this.imgSrc = node.attrs.src;
     // 获取点击时候的图片dom实例
@@ -265,8 +278,8 @@ export default class Image extends Node {
     if (!imgNode) {
       imgNode = event.target;
     }
-    /* 
-    firstSize的用途主要解决点击图片之后点击下方的宽高input会再次触发这个事件导致拿到的是input的宽高了 
+    /*
+    firstSize的用途主要解决点击图片之后点击下方的宽高input会再次触发这个事件导致拿到的是input的宽高了
     所以只对初次拿的图片做存储
     */
     if (!this.firstSize && !this.iptHeight && !this.iptWidth) {
@@ -277,10 +290,16 @@ export default class Image extends Node {
   };
 
   handleDownload = ({ node }) => event => {
-    console.log("当前node", node.attrs.src);
-    event.preventDefault();
-    event.stopPropagation();
-    downloadImageNode(node);
+    // event.preventDefault();
+    // event.stopPropagation();
+    // downloadImageNode(node);
+
+    const { view } = this.editor;
+    console.log("this.imgPos", this.imgPos);
+
+    console.log("altTransaction", altTransaction);
+
+    view.dispatch(altTransaction);
   };
 
   component = props => {
@@ -296,8 +315,9 @@ export default class Image extends Node {
       const equalProportion =
         parseInt(this.imgWidth) / parseInt(this.imgHeight);
 
+      // 当内容为空的时候，就要把宽高值重新设置为空
       if (!val) {
-        if(type === "width") {
+        if (type === "width") {
           for (let i = 0; i < domHeight.length; i++) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
@@ -317,7 +337,7 @@ export default class Image extends Node {
       if (type === "width") {
         this.iptWidth = val;
         for (let i = 0; i < domHeight.length; i++) {
-          this.iptHeight = Math.trunc(val / equalProportion);
+          this.iptHeight = Math.ceil(val / equalProportion);
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           domHeight[i].value = this.iptHeight;
@@ -327,7 +347,7 @@ export default class Image extends Node {
       if (type === "height") {
         this.iptHeight = val;
         for (let i = 0; i < domWidth.length; i++) {
-          this.iptWidth = Math.trunc(val / equalProportion);
+          this.iptWidth = Math.ceil(val * equalProportion);
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           domWidth[i].value = this.iptWidth;
@@ -335,43 +355,36 @@ export default class Image extends Node {
       }
     };
 
-    const testtApi = async () => {
-      const src = "http://ls.liulianpisa.top:6724/static/image/39/61b2015ce8fd41639055708.png";
-      return new Promise((resolve, reject) => {
-        let timerId = setTimeout(() => {
-          resolve(src);
-          clearTimeout(timerId);
-        }, 2000);
-      });
-    };
-
     // 失去宽高input的焦点编辑
-    const blurIsShowImgSize = (e: any) => {
-
+    const blurIsShowImgSize = () => {
       this.firstSize = false;
       if (this.iptWidth && this.iptHeight) {
         const { view } = this.editor;
         const { schema } = view.state;
-        const delTranction = view.state.tr.deleteSelection();
-        this.delTranction = delTranction;
+        // 存储当前准备要删除的节点
+        const delTransaction = view.state.tr.deleteSelection();
+        this.delTransaction = delTransaction;
+
+        // 开始调用传进来的异步请求和后端换取修改尺寸后的图片地址
         this.options
           .changeImgSize(this.iptWidth, this.iptHeight, this.imgSrc)
           .then(src => {
-            view.dispatch(this.delTranction);
-          const te = schema.nodes.image.create({ src });
-            const transction = view.state.tr.replaceWith(
+            view.dispatch(this.delTransaction);
+            const te = schema.nodes.image.create({ src, alt });
+            const transaction = view.state.tr.replaceWith(
               this.imgPos,
               this.imgPos,
               te
             );
-          view.dispatch(transction);
-          this.iptHeight = null;
-          this.iptWidth = null;
-        }).catch(() => {
-          throw new Error("修改图片尺寸失败");
-        });
-      };
-    }
+            view.dispatch(transaction);
+            this.iptHeight = null;
+            this.iptWidth = null;
+          })
+          .catch(() => {
+            throw new Error("修改图片尺寸失败");
+          });
+      }
+    };
     return (
       <div contentEditable={false} className={className}>
         <ImageWrapper
@@ -402,22 +415,22 @@ export default class Image extends Node {
             <FlexWrapper>
               <span>宽：</span>
               <input
-              onBlur={blurIsShowImgSize}
-              type="text"
-              className="imgSize-ipt img-w"
-              onChange={e => changeImgSize(e, "width")}
-            />
+                onBlur={blurIsShowImgSize}
+                type="text"
+                className="imgSize-ipt img-w"
+                onChange={e => changeImgSize(e, "width")}
+              />
             </FlexWrapper>
 
             <FlexWrapper>
               <span>高：</span>
               <input
-              onBlur={blurIsShowImgSize}
-              type="text"
-              className="imgSize-ipt img-h"
-              onChange={e => changeImgSize(e, "height")}
-            />
-          </FlexWrapper>
+                onBlur={blurIsShowImgSize}
+                type="text"
+                className="imgSize-ipt img-h"
+                onChange={e => changeImgSize(e, "height")}
+              />
+            </FlexWrapper>
           </SizeWrapper>
         </ImageWrapper>
         <Caption
@@ -589,7 +602,7 @@ const FlexWrapper = styled.div`
   display: inline-flex;
   align-items: center;
   margin-right: 20px;
-`
+`;
 
 const ImageWrapper = styled.span`
   line-height: 0;
