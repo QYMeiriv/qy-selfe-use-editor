@@ -236,7 +236,7 @@ export default class Image extends Node {
   };
 
   handleBlur = ({ node, getPos }) => event => {
-    const alt = "2123";
+    const alt = event.target.innerText;
     const { src, title, layoutClass } = node.attrs;
 
     if (alt === node.attrs.alt) return;
@@ -246,7 +246,6 @@ export default class Image extends Node {
 
     // update meta on object
     const pos = getPos();
-
     const transaction = tr.setNodeMarkup(pos, undefined, {
       src,
       alt,
