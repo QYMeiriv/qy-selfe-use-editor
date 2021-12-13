@@ -290,16 +290,9 @@ export default class Image extends Node {
   };
 
   handleDownload = ({ node }) => event => {
-    // event.preventDefault();
-    // event.stopPropagation();
-    // downloadImageNode(node);
-
-    const { view } = this.editor;
-    console.log("this.imgPos", this.imgPos);
-
-    console.log("altTransaction", altTransaction);
-
-    view.dispatch(altTransaction);
+    event.preventDefault();
+    event.stopPropagation();
+    downloadImageNode(node);
   };
 
   component = props => {
