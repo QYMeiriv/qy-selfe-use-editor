@@ -286,6 +286,21 @@ export default class Image extends Node {
       this.imgHeight = imgNode.offsetHeight;
       this.firstSize = true;
     }
+
+    const domHeight = document.getElementsByClassName("img-h");
+    const domWidth = document.getElementsByClassName("img-w");
+
+    for (let i = 0; i < domHeight.length; i++) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      domHeight[i].value = imgNode.offsetHeight;
+    }
+
+    for (let i = 0; i < domWidth.length; i++) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      domWidth[i].value = imgNode.offsetWidth;
+    }
   };
 
   handleDownload = ({ node }) => event => {
