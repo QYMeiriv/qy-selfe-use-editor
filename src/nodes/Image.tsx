@@ -282,24 +282,26 @@ export default class Image extends Node {
     所以只对初次拿的图片做存储
     */
     if (!this.firstSize && !this.iptHeight && !this.iptWidth) {
-      this.imgWidth = imgNode.offsetWidth;
-      this.imgHeight = imgNode.offsetHeight;
+      this.imgWidth = imgNode.offsetWidth ? imgNode.offsetWidth : this.imgWidth;
+      this.imgHeight = imgNode.offsetHeight
+        ? imgNode.offsetHeight
+        : this.imgHeight;
       this.firstSize = true;
-    }
 
-    const domHeight = document.getElementsByClassName("img-h");
-    const domWidth = document.getElementsByClassName("img-w");
+      const domHeight = document.getElementsByClassName("img-h");
+      const domWidth = document.getElementsByClassName("img-w");
 
-    for (let i = 0; i < domHeight.length; i++) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      domHeight[i].value = this.imgHeight;
-    }
+      for (let i = 0; i < domHeight.length; i++) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        domHeight[i].value = this.imgHeight;
+      }
 
-    for (let i = 0; i < domWidth.length; i++) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      domWidth[i].value = this.imgWidth;
+      for (let i = 0; i < domWidth.length; i++) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        domWidth[i].value = this.imgWidth;
+      }
     }
   };
 
