@@ -293,13 +293,13 @@ export default class Image extends Node {
     for (let i = 0; i < domHeight.length; i++) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      domHeight[i].value = imgNode.offsetHeight;
+      domHeight[i].value = this.imgHeight;
     }
 
     for (let i = 0; i < domWidth.length; i++) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      domWidth[i].value = imgNode.offsetWidth;
+      domWidth[i].value = this.imgWidth;
     }
   };
 
