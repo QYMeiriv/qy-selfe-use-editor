@@ -118,6 +118,7 @@ export default class Table extends Node {
 
   get plugins() {
     return [
+      // @ts-ignore
       columnResizing(),
       tableEditing(),
       new Plugin({
