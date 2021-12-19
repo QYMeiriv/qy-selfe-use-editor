@@ -1,10 +1,6 @@
 import { DecorationSet, Decoration } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
-import {
-  isTableSelected,
-  isRowSelected,
-  getCellsInColumn,
-} from "prosemirror-utils";
+import { isTableSelected, isRowSelected, getCellsInColumn } from "prosemirror-utils";
 import Node from "./Node";
 
 export default class TableCell extends Node {
@@ -19,18 +15,14 @@ export default class TableCell extends Node {
       isolating: true,
       parseDOM: [{ tag: "td" }],
       toDOM(node) {
-        return [
-          "td",
-          node.attrs.alignment
-            ? { style: `text-align: ${node.attrs.alignment}` }
-            : {},
-          0,
-        ];
+        console.log("node", node);
+        return ["td", node.attrs.alignment ? { style: `text-align: ${node.attrs.alignment}` } : {}, 0];
       },
       attrs: {
         colspan: { default: 1 },
         rowspan: { default: 1 },
         alignment: { default: null },
+        colwidth: { default: null },
       },
     };
   }

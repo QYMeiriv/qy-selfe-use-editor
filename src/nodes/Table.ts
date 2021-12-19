@@ -14,22 +14,18 @@ import {
   toggleHeaderCell,
   toggleHeaderColumn,
   toggleHeaderRow,
+  columnResizing,
 } from "prosemirror-tables";
-import {
-  addRowAt,
-  createTable,
-  getCellsInColumn,
-  moveRow,
-} from "prosemirror-utils";
+import { addRowAt, createTable, getCellsInColumn, moveRow } from "prosemirror-utils";
 import { Plugin, TextSelection } from "prosemirror-state";
 import tablesRule from "../rules/tables";
-
+// import { columnResizing } from "./tableResizePlugin";
 export default class Table extends Node {
-  get name() {
+  get name(): string {
     return "table";
   }
 
-  get schema() {
+  get schema(): unknown {
     return {
       content: "tr+",
       tableRole: "table",
@@ -40,11 +36,7 @@ export default class Table extends Node {
         return [
           "div",
           { class: "scrollable-wrapper" },
-          [
-            "div",
-            { class: "scrollable" },
-            ["table", { class: "rme-table" }, ["tbody", 0]],
-          ],
+          ["div", { class: "scrollable" }, ["table", { class: "rme-table" }, ["tbody", 0]]],
         ];
       },
     };
@@ -126,6 +118,7 @@ export default class Table extends Node {
 
   get plugins() {
     return [
+      columnResizing(),
       tableEditing(),
       new Plugin({
         props: {
@@ -142,9 +135,7 @@ export default class Table extends Node {
               if (!table) return;
 
               const element = table.parentElement;
-              const shadowRight = !!(
-                element && element.scrollWidth > element.clientWidth
-              );
+              const shadowRight = !!(element && element.scrollWidth > element.clientWidth);
 
               if (shadowRight) {
                 decorations.push(

@@ -15,18 +15,13 @@ export default class TableHeadCell extends Node {
       isolating: true,
       parseDOM: [{ tag: "th" }],
       toDOM(node) {
-        return [
-          "th",
-          node.attrs.alignment
-            ? { style: `text-align: ${node.attrs.alignment}` }
-            : {},
-          0,
-        ];
+        return ["th", node.attrs.alignment ? { style: `text-align: ${node.attrs.alignment}` } : {}, 0];
       },
       attrs: {
         colspan: { default: 1 },
         rowspan: { default: 1 },
         alignment: { default: null },
+        colwidth: { default: null },
       },
     };
   }

@@ -71,8 +71,6 @@ const insertFiles = function(view, event, pos, files, options) {
             .setMeta(uploadPlaceholderPlugin, { remove: { id } });
 
           view.dispatch(transaction);
-
-          console.log("transaction", transaction);
         };
 
         newImg.onerror = error => {

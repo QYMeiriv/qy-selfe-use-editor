@@ -25,7 +25,7 @@
     "prettier/prettier": [
       "error",
       {
-        "printWidth": 80,
+        "printWidth": 130,
         "trailingComma": "es5"
       }
     ]

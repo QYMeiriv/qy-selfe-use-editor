@@ -1019,4 +1019,18 @@ export const StyledEditor = styled("div")<{
       font-family: "SF Pro Text", ${props => props.theme.fontFamily};
     }
   }
+
+  .ProseMirror .column-resize-handle {
+    position: absolute;
+    right: -2px; top: 0; bottom: 0;
+    width: 4px;
+    z-index: 20;
+    background-color: #adf;
+    pointer-events: none;
+  }
+
+  .ProseMirror.resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
+  }
 `;
