@@ -3,6 +3,8 @@ import { Plugin } from "prosemirror-state";
 import { isColumnSelected, getCellsInRow } from "prosemirror-utils";
 import Node from "./Node";
 
+import { getCellAttrs, setCellAttrs } from "./tableResizePlugin";
+
 export default class TableHeadCell extends Node {
   get name() {
     return "th";
@@ -13,15 +15,27 @@ export default class TableHeadCell extends Node {
       content: "paragraph+",
       tableRole: "header_cell",
       isolating: true,
-      parseDOM: [{ tag: "th" }],
+      parseDOM: [{ tag: "th", getAttrs: dom => getCellAttrs(dom, this.schema.cellAttributes) }],
       toDOM(node) {
-        return ["th", node.attrs.alignment ? { style: `text-align: ${node.attrs.alignment}` } : {}, 0];
+        // return ["th", node.attrs.alignment ? { style: `text-align: ${node.attrs.alignment}` } : {}, 0];
+        return ["th", setCellAttrs(node, node.type.spec.cellAttributes), 0];
       },
       attrs: {
         colspan: { default: 1 },
         rowspan: { default: 1 },
         alignment: { default: null },
         colwidth: { default: null },
+      },
+      cellAttributes: {
+        background: {
+          default: null,
+          getFromDOM(dom) {
+            return dom.style.backgroundColor || null;
+          },
+          setDOMAttr(value, attrs) {
+            if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`;
+          },
+        },
       },
     };
   }
