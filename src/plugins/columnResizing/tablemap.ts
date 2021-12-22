@@ -1,4 +1,5 @@
-//@ts-nocheck
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 
 // Because working with row and column-spanning cells is not quite
 // trivial, this code builds up a descriptive structure for a given

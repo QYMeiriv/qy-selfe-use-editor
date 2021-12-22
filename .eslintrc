@@ -13,7 +13,7 @@
     "jsx-a11y"
   ],
   "rules": {
-    "eqeqeq": 2,
+    "eqeqeq": "off",
     "no-unused-vars": "off",
     "no-mixed-operators": "off",
     "jsx-a11y/href-no-hash": "off",
@@ -22,10 +22,11 @@
       "error"
     ],
     "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
     "prettier/prettier": [
       "error",
       {
-        "printWidth": 130,
+        "printWidth": 80,
         "trailingComma": "es5"
       }
     ]

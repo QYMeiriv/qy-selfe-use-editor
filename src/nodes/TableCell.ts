@@ -1,9 +1,12 @@
 import { DecorationSet, Decoration } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
-import { isTableSelected, isRowSelected, getCellsInColumn } from "prosemirror-utils";
-import Node from "./Node";
+import {
+  isTableSelected,
+  isRowSelected,
+  getCellsInColumn,
+} from "prosemirror-utils";
 
-import { getCellAttrs, setCellAttrs } from "./tableResizePlugin";
+import Node from "./Node";
 
 export default class TableCell extends Node {
   get name() {
@@ -15,10 +18,19 @@ export default class TableCell extends Node {
       content: "paragraph+",
       tableRole: "cell",
       isolating: true,
-      parseDOM: [{ tag: "td", getAttrs: dom => getCellAttrs(dom, this.schema.cellAttributes) }],
+      parseDOM: [
+        {
+          tag: "td",
+        },
+      ],
       toDOM(node) {
-        // return ["td", node.attrs.alignment ? { style: `text-align: ${node.attrs.alignment}` } : {}, 0];
-        return ["th", setCellAttrs(node, node.type.spec.cellAttributes), 0];
+        return [
+          "td",
+          node.attrs.alignment
+            ? { style: `text-align: ${node.attrs.alignment}` }
+            : {},
+          0,
+        ];
       },
       attrs: {
         colspan: { default: 1 },
@@ -33,7 +45,8 @@ export default class TableCell extends Node {
             return dom.style.backgroundColor || null;
           },
           setDOMAttr(value, attrs) {
-            if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`;
+            if (value)
+              attrs.style = (attrs.style || "") + `background-color: ${value};`;
           },
         },
       },

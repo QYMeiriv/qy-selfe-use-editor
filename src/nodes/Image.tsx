@@ -3,12 +3,12 @@ import { DownloadIcon } from "outline-icons";
 import { Plugin, TextSelection, NodeSelection } from "prosemirror-state";
 import { InputRule } from "prosemirror-inputrules";
 import styled from "styled-components";
-import ImageZoom from "react-medium-image-zoom";
+// import ImageZoom from "react-medium-image-zoom";
+import { Resizable } from "re-resizable";
 import getDataTransferFiles from "../lib/getDataTransferFiles";
 import uploadPlaceholderPlugin from "../lib/uploadPlaceholder";
 import insertFiles from "../commands/insertFiles";
 import Node from "./Node";
-import { isNumber } from "lodash";
 
 /**
  * Matches following attributes in Markdown-typed image: [, alt, src, class]
@@ -31,23 +31,18 @@ const uploadPlugin = options =>
           ) {
             return false;
           }
-
           if (!event.clipboardData) return false;
-
           // check if we actually pasted any files
           const files = Array.prototype.slice
             .call(event.clipboardData.items)
             .map(dt => dt.getAsFile())
             .filter(file => file);
-
           if (files.length === 0) return false;
-
           const { tr } = view.state;
           if (!tr.selection.empty) {
             tr.deleteSelection();
           }
           const pos = tr.selection.from;
-
           insertFiles(view, event, pos, files, options);
           return true;
         },
@@ -58,7 +53,6 @@ const uploadPlugin = options =>
           ) {
             return false;
           }
-
           // filter to only include image files
           const files = getDataTransferFiles(event).filter(file =>
             /image/i.test(file.type)
@@ -66,24 +60,20 @@ const uploadPlugin = options =>
           if (files.length === 0) {
             return false;
           }
-
           // grab the position in the document for the cursor
           const result = view.posAtCoords({
             left: event.clientX,
             top: event.clientY,
           });
-
           if (result) {
             insertFiles(view, event, result.pos, files, options);
             return true;
           }
-
           return false;
         },
       },
     },
   });
-
 const IMAGE_CLASSES = ["right-50", "left-50"];
 const getLayoutAndTitle = tokenTitle => {
   if (!tokenTitle) return {};
@@ -97,46 +87,95 @@ const getLayoutAndTitle = tokenTitle => {
     };
   }
 };
-
 const downloadImageNode = async node => {
   const image = await fetch(node.attrs.src);
   const imageBlob = await image.blob();
   const imageURL = URL.createObjectURL(imageBlob);
   const extension = imageBlob.type.split("/")[1];
   const potentialName = node.attrs.alt || "image";
-
   // create a temporary link node and click it with our image data
   const link = document.createElement("a");
-  console.log("imageBlob", imageBlob.type);
   link.href = imageURL;
   link.download = `${potentialName}.${extension}`;
   document.body.appendChild(link);
   link.click();
-
   // cleanup
   document.body.removeChild(link);
 };
 
-export default class Image extends Node {
-  // 图片当前的宽度
-  private imgWidth;
-  // 图片当前的高度
-  private imgHeight;
-  // 设置图片宽度的值
-  private iptWidth;
-  // 设置图片高度的值
-  private iptHeight;
-  // 用于控制初次拿到图片的值
-  private firstSize = false;
-  // 当前图片节点的位置
-  private imgPos;
-  // 当前图片的地址
-  private imgSrc;
-  // 删除当前节点的储存
-  private delTransaction;
-  // 存储当前的图片的alt
-  private imgAlt;
+interface ISize {
+  width: number;
+  height: number;
+}
 
+interface IResizeProps {
+  props?: any;
+  size: ISize;
+}
+
+interface IImageBoxProps {
+  src: string;
+  alt: string;
+  title: string;
+  props: any;
+  readOnly?: boolean;
+  handleResize: (props: IResizeProps) => void;
+  defaultWidth: number;
+  defaultHeight: number;
+}
+
+const ImageBox: React.FC<IImageBoxProps> = ({
+  src,
+  alt,
+  title,
+  props,
+  handleResize,
+  defaultWidth,
+  defaultHeight,
+  readOnly,
+}) => {
+  const [width, setWidth] = React.useState(defaultWidth || 150);
+  const [height, setHeight] = React.useState(defaultHeight || 150);
+
+  const ImageNode = (
+    <img
+      src={src}
+      alt={alt}
+      title={title}
+      className="personal-image"
+      style={{
+        width: "100%",
+        height: "100%",
+      }}
+    />
+  );
+
+  if (readOnly) {
+    return <div style={{ width, height }}>{ImageNode}</div>;
+  }
+
+  return (
+    <Resizable
+      size={{ width, height }}
+      onResizeStop={(e, direction, ref, d) => {
+        setWidth(width + d.width);
+        setHeight(height + d.height);
+
+        handleResize({
+          props,
+          size: {
+            width: width + d.width,
+            height: height + d.height,
+          },
+        });
+      }}
+    >
+      {ImageNode}
+    </Resizable>
+  );
+};
+
+export default class Image extends Node {
   get name() {
     return "image";
   }
@@ -153,6 +192,12 @@ export default class Image extends Node {
           default: null,
         },
         title: {
+          default: null,
+        },
+        width: {
+          default: null,
+        },
+        height: {
           default: null,
         },
       },
@@ -201,7 +246,15 @@ export default class Image extends Node {
           {
             class: className,
           },
-          ["img", { ...node.attrs, contentEditable: false }],
+          // ["img", { ...node.attrs, contentEditable: false }],
+          [
+            "img",
+            {
+              ...node.attrs,
+              style: { width: node.attrs.width, height: node.attrs.height },
+              contentEditable: false,
+            },
+          ],
           ["p", { class: "caption" }, 0],
         ];
       },
@@ -260,49 +313,13 @@ export default class Image extends Node {
    * @version 1.1.0
    * @author 弹吉他的CoderQ
    */
-  handleSelect = ({ getPos, node }) => event => {
+  handleSelect = ({ getPos }) => event => {
     event.preventDefault();
+
     const { view } = this.editor;
     const $pos = view.state.doc.resolve(getPos());
     const transaction = view.state.tr.setSelection(new NodeSelection($pos));
-    view.dispatch(transaction);
-
-    // 存储当前图片的alt
-    this.imgAlt = node.attrs.alt;
-    this.imgPos = $pos.pos;
-    this.imgSrc = node.attrs.src;
-    // 获取点击时候的图片dom实例
-    let imgNode = event.target.childNodes[1];
-    // 这里是因为初次点击可能第一个target就是img，但是二次点击之后target可能会有多一个span所以就要做判断
-    if (!imgNode) {
-      imgNode = event.target;
-    }
-    /*
-    firstSize的用途主要解决点击图片之后点击下方的宽高input会再次触发这个事件导致拿到的是input的宽高了
-    所以只对初次拿的图片做存储
-    */
-    if (!this.firstSize && !this.iptHeight && !this.iptWidth) {
-      this.imgWidth = imgNode.offsetWidth ? imgNode.offsetWidth : this.imgWidth;
-      this.imgHeight = imgNode.offsetHeight
-        ? imgNode.offsetHeight
-        : this.imgHeight;
-      this.firstSize = true;
-
-      const domHeight = document.getElementsByClassName("img-h");
-      const domWidth = document.getElementsByClassName("img-w");
-
-      for (let i = 0; i < domHeight.length; i++) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        domHeight[i].value = this.imgHeight;
-      }
-
-      for (let i = 0; i < domWidth.length; i++) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        domWidth[i].value = this.imgWidth;
-      }
-    }
+    return view.dispatch(transaction);
   };
 
   handleDownload = ({ node }) => event => {
@@ -311,94 +328,37 @@ export default class Image extends Node {
     downloadImageNode(node);
   };
 
+  /**
+   * 图片拉伸方法
+   * @param { Object } 当前点击的props事件
+   */
+  handleResize = async ({ props, size }: IResizeProps) => {
+    const {
+      view: { dispatch, state },
+    } = this.editor;
+    const nodeAttrs = props?.attrs || {};
+    const attrs = {
+      ...nodeAttrs,
+      title: null,
+      width: size.width,
+      height: size.height,
+    };
+    const { selection } = state;
+    dispatch(state.tr.setNodeMarkup(selection.from, undefined, attrs));
+    return true;
+  };
+
   component = props => {
-    const { theme, isSelected } = props;
-    const { alt, src, title, layoutClass } = props.node.attrs;
+    const { isSelected } = props;
+    const { alt, src, title, layoutClass, width, height } = props.node.attrs;
     const className = layoutClass ? `image image-${layoutClass}` : "image";
 
-    // 宽高触发文本事件
-    const changeImgSize = (e: any, type) => {
-      const val = e.target.value;
-      const domHeight = document.getElementsByClassName("img-h");
-      const domWidth = document.getElementsByClassName("img-w");
-      const equalProportion =
-        parseInt(this.imgWidth) / parseInt(this.imgHeight);
-
-      // 当内容为空的时候，就要把宽高值重新设置为空
-      if (!val) {
-        if (type === "width") {
-          for (let i = 0; i < domHeight.length; i++) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            domHeight[i].value = null;
-          }
-        }
-
-        if (type === "height") {
-          for (let i = 0; i < domWidth.length; i++) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            domWidth[i].value = null;
-          }
-        }
-        return;
-      }
-      if (type === "width") {
-        this.iptWidth = val;
-        for (let i = 0; i < domHeight.length; i++) {
-          this.iptHeight = Math.ceil(val / equalProportion);
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          domHeight[i].value = this.iptHeight;
-        }
-      }
-
-      if (type === "height") {
-        this.iptHeight = val;
-        for (let i = 0; i < domWidth.length; i++) {
-          this.iptWidth = Math.ceil(val * equalProportion);
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          domWidth[i].value = this.iptWidth;
-        }
-      }
-    };
-
-    // 失去宽高input的焦点编辑
-    const blurIsShowImgSize = () => {
-      this.firstSize = false;
-      if (this.iptWidth && this.iptHeight) {
-        const { view } = this.editor;
-        const { schema } = view.state;
-        // 存储当前准备要删除的节点
-        const delTransaction = view.state.tr.deleteSelection();
-        this.delTransaction = delTransaction;
-
-        // 开始调用传进来的异步请求和后端换取修改尺寸后的图片地址
-        this.options
-          .changeImgSize(this.iptWidth, this.iptHeight, this.imgSrc)
-          .then(src => {
-            view.dispatch(this.delTransaction);
-            const te = schema.nodes.image.create({ src, alt });
-            const transaction = view.state.tr.replaceWith(
-              this.imgPos,
-              this.imgPos,
-              te
-            );
-            view.dispatch(transaction);
-            this.iptHeight = null;
-            this.iptWidth = null;
-          })
-          .catch(() => {
-            throw new Error("修改图片尺寸失败");
-          });
-      }
-    };
     return (
       <div contentEditable={false} className={className}>
         <ImageWrapper
           className={isSelected ? "ProseMirror-selectednode" : ""}
           onClick={this.handleSelect(props)}
+          onMouseDown={this.handleSelect(props)}
         >
           <Button>
             <DownloadIcon
@@ -406,41 +366,16 @@ export default class Image extends Node {
               onClick={this.handleDownload(props)}
             />
           </Button>
-          <ImageZoom
-            image={{
-              src,
-              alt,
-              title,
-            }}
-            defaultStyles={{
-              overlay: {
-                backgroundColor: theme.background,
-              },
-            }}
-            shouldRespectMaxDimension
+          <ImageBox
+            src={src}
+            alt={alt}
+            title={title}
+            props={props}
+            readOnly={this.editor.props.readOnly}
+            defaultWidth={width}
+            defaultHeight={height}
+            handleResize={this.handleResize}
           />
-          {/* 修改图片宽高 */}
-          <SizeWrapper style={{ display: isSelected ? "block" : "none" }}>
-            <FlexWrapper>
-              <span>宽：</span>
-              <input
-                onBlur={blurIsShowImgSize}
-                type="text"
-                className="imgSize-ipt img-w"
-                onChange={e => changeImgSize(e, "width")}
-              />
-            </FlexWrapper>
-
-            <FlexWrapper>
-              <span>高：</span>
-              <input
-                onBlur={blurIsShowImgSize}
-                type="text"
-                className="imgSize-ipt img-h"
-                onChange={e => changeImgSize(e, "height")}
-              />
-            </FlexWrapper>
-          </SizeWrapper>
         </ImageWrapper>
         <Caption
           onKeyDown={this.handleKeyDown(props)}
@@ -464,12 +399,21 @@ export default class Image extends Node {
       state.esc((node.attrs.alt || "").replace("\n", "") || "") +
       "](" +
       state.esc(node.attrs.src);
+
+    const { width, height } = node.attrs;
+    console.log("toMarkdown1", markdown);
+    if (width || height) {
+      markdown += `?=${width}${height ? "x" + height : ""}`;
+    }
+
     if (node.attrs.layoutClass) {
       markdown += ' "' + state.esc(node.attrs.layoutClass) + '"';
     } else if (node.attrs.title) {
       markdown += ' "' + state.esc(node.attrs.title) + '"';
     }
     markdown += ")";
+
+    console.log("toMarkdown2", markdown);
     state.write(markdown);
   }
 
@@ -477,9 +421,32 @@ export default class Image extends Node {
     return {
       node: "image",
       getAttrs: token => {
+        let src = token.attrGet("src");
+        console.log("getAttrs", src, "token", token);
+        const possibleImageSizeAttrs = src.split("?=");
+        let width, height;
+
+        if (possibleImageSizeAttrs[1]) {
+          const widthStringValue = possibleImageSizeAttrs[1].split("x");
+          width = widthStringValue[0].replace(/\D/g, "");
+          height = widthStringValue[1].replace(/\D/g, "");
+
+          if (src && width) {
+            src = src.replace(`${width}`, "");
+          }
+          if (src && height) {
+            src = src.replace(`x${height}`, "");
+          }
+        }
+
+        console.log("格式化后的src", possibleImageSizeAttrs);
+
         return {
-          src: token.attrGet("src"),
+          // src: token.attrGet("src"),
+          src: possibleImageSizeAttrs[0],
           alt: (token.children[0] && token.children[0].content) || null,
+          width: width ? parseFloat(width) : null,
+          height: height ? parseFloat(height) : null,
           ...getLayoutAndTitle(token.attrGet("title")),
         };
       },
@@ -595,22 +562,6 @@ const Button = styled.button`
     color: ${props => props.theme.text};
     opacity: 1;
   }
-`;
-
-const SizeWrapper = styled.div`
-  flex-direction: column;
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  display: none;
-  border-radius: 5px;
-  margin-top: 4px;
-`;
-
-const FlexWrapper = styled.div`
-  display: inline-flex;
-  align-items: center;
-  margin-right: 20px;
 `;
 
 const ImageWrapper = styled.span`

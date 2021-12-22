@@ -218,7 +218,6 @@ export default class ListItem extends Node {
           !$pos.nodeBefore ||
           !["list_item", "checkbox_item"].includes($pos.nodeBefore.type.name)
         ) {
-          console.log("Node before not a list item");
           return false;
         }
 
@@ -245,7 +244,6 @@ export default class ListItem extends Node {
           !$pos.nodeAfter ||
           !["list_item", "checkbox_item"].includes($pos.nodeAfter.type.name)
         ) {
-          console.log("Node after not a list item");
           return false;
         }
 

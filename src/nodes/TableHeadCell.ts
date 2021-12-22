@@ -3,8 +3,9 @@ import { Plugin } from "prosemirror-state";
 import { isColumnSelected, getCellsInRow } from "prosemirror-utils";
 import Node from "./Node";
 
-import { getCellAttrs, setCellAttrs } from "./tableResizePlugin";
-
+// import { columnResizing } from "prosemirror-tables";
+import { columnResizing } from "../plugins/columnResizing";
+import { setCellAttrs, getCellAttrs } from "../plugins/columnResizing/schema";
 export default class TableHeadCell extends Node {
   get name() {
     return "th";
@@ -15,10 +16,29 @@ export default class TableHeadCell extends Node {
       content: "paragraph+",
       tableRole: "header_cell",
       isolating: true,
-      parseDOM: [{ tag: "th", getAttrs: dom => getCellAttrs(dom, this.schema.cellAttributes) }],
+      parseDOM: [
+        {
+          tag: "th",
+          getAttrs: dom => getCellAttrs(dom),
+        },
+      ],
       toDOM(node) {
-        // return ["th", node.attrs.alignment ? { style: `text-align: ${node.attrs.alignment}` } : {}, 0];
-        return ["th", setCellAttrs(node, node.type.spec.cellAttributes), 0];
+        // return [
+        //   "th",
+        //   node.attrs.alignment
+        //     ? { style: `text-align: ${node.attrs.alignment}` }
+        //     : {},
+        //   0,
+        // ];
+        if (!node.attrs.colwidth) {
+          const textContent = node.textContent as string;
+          const countArr = textContent.match(/\d+/g);
+          if (countArr) {
+            const width = Number(countArr![0]);
+            node.attrs.colwidth = [width];
+          }
+        }
+        return ["th", setCellAttrs(node), 0];
       },
       attrs: {
         colspan: { default: 1 },
@@ -33,26 +53,36 @@ export default class TableHeadCell extends Node {
             return dom.style.backgroundColor || null;
           },
           setDOMAttr(value, attrs) {
-            if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`;
+            console.log("value", value, "attrs", attrs);
+            if (value)
+              attrs.style = (attrs.style || "") + `background-color: ${value};`;
           },
         },
       },
     };
   }
 
-  toMarkdown() {
-    // see: renderTable
+  toMarkdown(state, node) {
+    state.write("+++++<300>");
+    console.log("node.attrs", node.attrs);
   }
 
   parseMarkdown() {
     return {
       block: "th",
-      getAttrs: tok => ({ alignment: tok.info }),
+      getAttrs: tok => {
+        const dataCol = tok.attrGet("data-colwidth");
+        return {
+          alignment: tok.info,
+          colwidth: dataCol,
+        };
+      },
     };
   }
 
   get plugins() {
     return [
+      columnResizing(),
       new Plugin({
         props: {
           decorations: state => {

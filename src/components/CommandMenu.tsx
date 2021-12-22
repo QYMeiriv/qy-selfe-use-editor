@@ -249,7 +249,6 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
   };
 
   triggerImagePick = () => {
-    console.log("点击了图片提交")
     if (this.inputRef.current) {
       this.inputRef.current.click();
     }

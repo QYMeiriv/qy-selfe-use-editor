@@ -60,8 +60,6 @@ const insertFiles = function(view, event, pos, files, options) {
         newImg.onload = () => {
           const pos = findPlaceholder(view.state, id);
 
-          console.log("newImage", pos);
-
           // if the content around the placeholder has been deleted
           // then forget about inserting this image
           if (pos === null) return;

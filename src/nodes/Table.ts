@@ -14,12 +14,15 @@ import {
   toggleHeaderCell,
   toggleHeaderColumn,
   toggleHeaderRow,
-  columnResizing,
 } from "prosemirror-tables";
-import { addRowAt, createTable, getCellsInColumn, moveRow } from "prosemirror-utils";
+import {
+  addRowAt,
+  createTable,
+  getCellsInColumn,
+  moveRow,
+} from "prosemirror-utils";
 import { Plugin, TextSelection } from "prosemirror-state";
 import tablesRule from "../rules/tables";
-// import { columnResizing } from "./tableResizePlugin";
 export default class Table extends Node {
   get name(): string {
     return "table";
@@ -36,7 +39,11 @@ export default class Table extends Node {
         return [
           "div",
           { class: "scrollable-wrapper" },
-          ["div", { class: "scrollable" }, ["table", { class: "rme-table" }, ["tbody", 0]]],
+          [
+            "div",
+            { class: "scrollable" },
+            ["table", { class: "rme-table" }, ["tbody", 0]],
+          ],
         ];
       },
     };
@@ -53,6 +60,8 @@ export default class Table extends Node {
         const nodes = createTable(schema, rowsCount, colsCount);
         const tr = state.tr.replaceSelectionWith(nodes).scrollIntoView();
         const resolvedPos = tr.doc.resolve(offset);
+
+        console.log("resolvedPos", resolvedPos);
 
         tr.setSelection(TextSelection.near(resolvedPos));
         dispatch(tr);
@@ -113,14 +122,20 @@ export default class Table extends Node {
   }
 
   parseMarkdown() {
-    return { block: "table" };
+    return {
+      block: "table",
+      getAttrs: token => {
+        return {};
+      },
+    };
   }
 
   get plugins() {
     return [
-      // @ts-ignore
-      columnResizing(),
       tableEditing(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      // columnResizing(),
       new Plugin({
         props: {
           decorations: state => {
@@ -136,7 +151,9 @@ export default class Table extends Node {
               if (!table) return;
 
               const element = table.parentElement;
-              const shadowRight = !!(element && element.scrollWidth > element.clientWidth);
+              const shadowRight = !!(
+                element && element.scrollWidth > element.clientWidth
+              );
 
               if (shadowRight) {
                 decorations.push(
