@@ -25,10 +25,7 @@ const uploadPlugin = options =>
     props: {
       handleDOMEvents: {
         paste(view, event: ClipboardEvent): boolean {
-          if (
-            (view.props.editable && !view.props.editable(view.state)) ||
-            !options.uploadImage
-          ) {
+          if ((view.props.editable && !view.props.editable(view.state)) || !options.uploadImage) {
             return false;
           }
 
@@ -52,17 +49,12 @@ const uploadPlugin = options =>
           return true;
         },
         drop(view, event: DragEvent): boolean {
-          if (
-            (view.props.editable && !view.props.editable(view.state)) ||
-            !options.uploadImage
-          ) {
+          if ((view.props.editable && !view.props.editable(view.state)) || !options.uploadImage) {
             return false;
           }
 
           // filter to only include image files
-          const files = getDataTransferFiles(event).filter(file =>
-            /image/i.test(file.type)
-          );
+          const files = getDataTransferFiles(event).filter(file => /image/i.test(file.type));
           if (files.length === 0) {
             return false;
           }
@@ -107,7 +99,6 @@ const downloadImageNode = async node => {
 
   // create a temporary link node and click it with our image data
   const link = document.createElement("a");
-  console.log("imageBlob", imageBlob.type);
   link.href = imageURL;
   link.download = `${potentialName}.${extension}`;
   document.body.appendChild(link);
@@ -167,11 +158,8 @@ export default class Image extends Node {
           getAttrs: (dom: HTMLDivElement) => {
             const img = dom.getElementsByTagName("img")[0];
             const className = dom.className;
-            const layoutClassMatched =
-              className && className.match(/image-(.*)$/);
-            const layoutClass = layoutClassMatched
-              ? layoutClassMatched[1]
-              : null;
+            const layoutClassMatched = className && className.match(/image-(.*)$/);
+            const layoutClass = layoutClassMatched ? layoutClassMatched[1] : null;
             return {
               src: img?.getAttribute("src"),
               alt: img?.getAttribute("alt"),
@@ -193,9 +181,7 @@ export default class Image extends Node {
         },
       ],
       toDOM: node => {
-        const className = node.attrs.layoutClass
-          ? `image image-${node.attrs.layoutClass}`
-          : "image";
+        const className = node.attrs.layoutClass ? `image image-${node.attrs.layoutClass}` : "image";
         return [
           "div",
           {
@@ -216,9 +202,7 @@ export default class Image extends Node {
 
       const { view } = this.editor;
       const $pos = view.state.doc.resolve(getPos() + node.nodeSize);
-      view.dispatch(
-        view.state.tr.setSelection(new TextSelection($pos)).split($pos.pos)
-      );
+      view.dispatch(view.state.tr.setSelection(new TextSelection($pos)).split($pos.pos));
       view.focus();
       return;
     }
@@ -283,9 +267,7 @@ export default class Image extends Node {
     */
     if (!this.firstSize && !this.iptHeight && !this.iptWidth) {
       this.imgWidth = imgNode.offsetWidth ? imgNode.offsetWidth : this.imgWidth;
-      this.imgHeight = imgNode.offsetHeight
-        ? imgNode.offsetHeight
-        : this.imgHeight;
+      this.imgHeight = imgNode.offsetHeight ? imgNode.offsetHeight : this.imgHeight;
       this.firstSize = true;
 
       const domHeight = document.getElementsByClassName("img-h");
@@ -321,8 +303,7 @@ export default class Image extends Node {
       const val = e.target.value;
       const domHeight = document.getElementsByClassName("img-h");
       const domWidth = document.getElementsByClassName("img-w");
-      const equalProportion =
-        parseInt(this.imgWidth) / parseInt(this.imgHeight);
+      const equalProportion = parseInt(this.imgWidth) / parseInt(this.imgHeight);
 
       // 当内容为空的时候，就要把宽高值重新设置为空
       if (!val) {
@@ -380,11 +361,7 @@ export default class Image extends Node {
           .then(src => {
             view.dispatch(this.delTransaction);
             const te = schema.nodes.image.create({ src, alt });
-            const transaction = view.state.tr.replaceWith(
-              this.imgPos,
-              this.imgPos,
-              te
-            );
+            const transaction = view.state.tr.replaceWith(this.imgPos, this.imgPos, te);
             view.dispatch(transaction);
             this.iptHeight = null;
             this.iptWidth = null;
@@ -396,15 +373,9 @@ export default class Image extends Node {
     };
     return (
       <div contentEditable={false} className={className}>
-        <ImageWrapper
-          className={isSelected ? "ProseMirror-selectednode" : ""}
-          onClick={this.handleSelect(props)}
-        >
+        <ImageWrapper className={isSelected ? "ProseMirror-selectednode" : ""} onClick={this.handleSelect(props)}>
           <Button>
-            <DownloadIcon
-              color="currentColor"
-              onClick={this.handleDownload(props)}
-            />
+            <DownloadIcon color="currentColor" onClick={this.handleDownload(props)} />
           </Button>
           <ImageZoom
             image={{
@@ -459,11 +430,7 @@ export default class Image extends Node {
   };
 
   toMarkdown(state, node) {
-    let markdown =
-      " ![" +
-      state.esc((node.attrs.alt || "").replace("\n", "") || "") +
-      "](" +
-      state.esc(node.attrs.src);
+    let markdown = " ![" + state.esc((node.attrs.alt || "").replace("\n", "") || "") + "](" + state.esc(node.attrs.src);
     if (node.attrs.layoutClass) {
       markdown += ' "' + state.esc(node.attrs.layoutClass) + '"';
     } else if (node.attrs.title) {
@@ -531,9 +498,7 @@ export default class Image extends Node {
       },
       createImage: attrs => (state, dispatch) => {
         const { selection } = state;
-        const position = selection.$cursor
-          ? selection.$cursor.pos
-          : selection.$to.pos;
+        const position = selection.$cursor ? selection.$cursor.pos : selection.$to.pos;
         const node = type.create(attrs);
         const transaction = state.tr.insert(position, node);
         dispatch(transaction);

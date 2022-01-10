@@ -83,11 +83,7 @@ export default class SelectionToolbar extends React.Component<Props> {
   }
 
   handleClickOutside = (ev: MouseEvent): void => {
-    if (
-      ev.target instanceof Node &&
-      this.menuRef.current &&
-      this.menuRef.current.contains(ev.target)
-    ) {
+    if (ev.target instanceof Node && this.menuRef.current && this.menuRef.current.contains(ev.target)) {
       return;
     }
 
@@ -102,9 +98,7 @@ export default class SelectionToolbar extends React.Component<Props> {
 
     const { dispatch } = view;
 
-    dispatch(
-      view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(0)))
-    );
+    dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(0))));
   };
 
   handleOnCreateLink = async (title: string): Promise<void> => {
@@ -125,11 +119,7 @@ export default class SelectionToolbar extends React.Component<Props> {
     const markType = state.schema.marks.link;
 
     // Insert a placeholder link
-    dispatch(
-      view.state.tr
-        .removeMark(from, to, markType)
-        .addMark(from, to, markType.create({ href }))
-    );
+    dispatch(view.state.tr.removeMark(from, to, markType).addMark(from, to, markType.create({ href })));
 
     createAndInsertLink(view, title, href, {
       onCreateLink,
@@ -138,25 +128,13 @@ export default class SelectionToolbar extends React.Component<Props> {
     });
   };
 
-  handleOnSelectLink = ({
-    href,
-    from,
-    to,
-  }: {
-    href: string;
-    from: number;
-    to: number;
-  }): void => {
+  handleOnSelectLink = ({ href, from, to }: { href: string; from: number; to: number }): void => {
     const { view } = this.props;
     const { state, dispatch } = view;
 
     const markType = state.schema.marks.link;
 
-    dispatch(
-      state.tr
-        .removeMark(from, to, markType)
-        .addMark(from, to, markType.create({ href }))
-    );
+    dispatch(state.tr.removeMark(from, to, markType).addMark(from, to, markType.create({ href })));
   };
 
   render() {
@@ -177,8 +155,7 @@ export default class SelectionToolbar extends React.Component<Props> {
     const isTableSelection = colIndex !== undefined && rowIndex !== undefined;
     const link = isMarkActive(state.schema.marks.link)(state);
     const range = getMarkRange(selection.$from, state.schema.marks.link);
-    const isImageSelection =
-      selection.node && selection.node.type.name === "image";
+    const isImageSelection = selection.node && selection.node.type.name === "image";
     let isTextSelection = false;
 
     let items: MenuItem[] = [];
@@ -190,7 +167,6 @@ export default class SelectionToolbar extends React.Component<Props> {
       items = getTableRowMenuItems(state, rowIndex, dictionary);
     } else if (isImageSelection) {
       items = getImageMenuItems(state, dictionary);
-      console.log("items", items);
     } else if (isDividerSelection) {
       items = getDividerMenuItems(state, dictionary);
     } else {
@@ -210,10 +186,7 @@ export default class SelectionToolbar extends React.Component<Props> {
       return null;
     }
 
-    const selectionText = state.doc.cut(
-      state.selection.from,
-      state.selection.to
-    ).textContent;
+    const selectionText = state.doc.cut(state.selection.from, state.selection.to).textContent;
 
     if (isTextSelection && !selectionText) {
       return null;
@@ -221,11 +194,7 @@ export default class SelectionToolbar extends React.Component<Props> {
 
     return (
       <Portal>
-        <FloatingToolbar
-          view={view}
-          active={isVisible(this.props)}
-          ref={this.menuRef}
-        >
+        <FloatingToolbar view={view} active={isVisible(this.props)} ref={this.menuRef}>
           {link && range ? (
             <LinkEditor
               dictionary={dictionary}

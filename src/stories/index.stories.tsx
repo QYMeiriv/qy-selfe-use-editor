@@ -89,9 +89,6 @@ Blockquotes.args = {
 
 export const Tables = Template.bind({});
 Tables.args = {
-  // onChange: val => {
-  //   console.log("val", val());
-  // },
   defaultValue: `# Tables
 
 Simple tables with alignment and row/col editing are supported, they can be inserted from the slash menu

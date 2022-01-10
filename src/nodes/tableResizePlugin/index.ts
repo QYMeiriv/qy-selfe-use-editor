@@ -171,7 +171,6 @@ function handleMouseDown(view, event, cellMinWidth) {
 
   // 点击之后进行拖动触发的事件
   function move(event) {
-    console.log("产生拖动");
     if (!event.which) return finish(event);
     const pluginState = key.getState(view.state);
     const dragged = draggedWidth(pluginState.dragging, event, cellMinWidth);
@@ -260,7 +259,6 @@ function handleDecorations(state, cell) {
 }
 
 export function getCellAttrs(dom, extraAttrs) {
-  console.log("getCellAttrs", extraAttrs);
   const widthAttr = dom.getAttribute("data-colwidth");
   const widths = widthAttr && /^\d+(,\d+)*$/.test(widthAttr) ? widthAttr.split(",").map(s => Number(s)) : null;
   const colspan = Number(dom.getAttribute("colspan") || 1);

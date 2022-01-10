@@ -78,11 +78,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (
-      nextProps.search !== this.props.search ||
-      nextProps.isActive !== this.props.isActive ||
-      nextState !== this.state
-    );
+    return nextProps.search !== this.props.search || nextProps.isActive !== this.props.isActive || nextState !== this.state;
   }
 
   componentDidUpdate(prevProps) {
@@ -121,11 +117,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
       }
     }
 
-    if (
-      event.key === "ArrowUp" ||
-      (event.key === "Tab" && event.shiftKey) ||
-      (event.ctrlKey && event.key === "p")
-    ) {
+    if (event.key === "ArrowUp" || (event.key === "Tab" && event.shiftKey) || (event.ctrlKey && event.key === "p")) {
       event.preventDefault();
       event.stopPropagation();
 
@@ -134,21 +126,14 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
         const prev = this.filtered[prevIndex];
 
         this.setState({
-          selectedIndex: Math.max(
-            0,
-            prev && prev.name === "separator" ? prevIndex - 1 : prevIndex
-          ),
+          selectedIndex: Math.max(0, prev && prev.name === "separator" ? prevIndex - 1 : prevIndex),
         });
       } else {
         this.close();
       }
     }
 
-    if (
-      event.key === "ArrowDown" ||
-      (event.key === "Tab" && !event.shiftKey) ||
-      (event.ctrlKey && event.key === "n")
-    ) {
+    if (event.key === "ArrowDown" || (event.key === "Tab" && !event.shiftKey) || (event.ctrlKey && event.key === "n")) {
       event.preventDefault();
       event.stopPropagation();
 
@@ -158,10 +143,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
         const next = this.filtered[nextIndex];
 
         this.setState({
-          selectedIndex: Math.min(
-            next && next.name === "separator" ? nextIndex + 1 : nextIndex,
-            total
-          ),
+          selectedIndex: Math.min(next && next.name === "separator" ? nextIndex + 1 : nextIndex, total),
         });
       } else {
         this.close();
@@ -207,10 +189,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
       const matches = this.state.insertItem.matcher(href);
 
       if (!matches && this.props.onShowToast) {
-        this.props.onShowToast(
-          this.props.dictionary.embedInvalidLink,
-          ToastType.Error
-        );
+        this.props.onShowToast(this.props.dictionary.embedInvalidLink, ToastType.Error);
         return;
       }
 
@@ -249,7 +228,6 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
   };
 
   triggerImagePick = () => {
-    console.log("点击了图片提交")
     if (this.inputRef.current) {
       this.inputRef.current.click();
     }
@@ -262,13 +240,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
   handleImagePicked = event => {
     const files = getDataTransferFiles(event);
 
-    const {
-      view,
-      uploadImage,
-      onImageUploadStart,
-      onImageUploadStop,
-      onShowToast,
-    } = this.props;
+    const { view, uploadImage, onImageUploadStart, onImageUploadStop, onShowToast } = this.props;
     const { state } = view;
     const parent = findParentNode(node => !!node)(state.selection);
 
@@ -357,12 +329,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
     const node = findDomRefAtPos(selection.from, domAtPos);
     const paragraph: any = { node };
 
-    if (
-      !props.isActive ||
-      !paragraph.node ||
-      !paragraph.node.getBoundingClientRect ||
-      SSR
-    ) {
+    if (!props.isActive || !paragraph.node || !paragraph.node.getBoundingClientRect || SSR) {
       return defaultPosition;
     }
 
@@ -393,13 +360,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
   }
 
   get filtered() {
-    const {
-      embeds = [],
-      search = "",
-      uploadImage,
-      commands,
-      filterable = true,
-    } = this.props;
+    const { embeds = [], search = "", uploadImage, commands, filterable = true } = this.props;
     let items: (EmbedDescriptor | MenuItem)[] = this.props.items;
     const embedItems: EmbedDescriptor[] = [];
 
@@ -423,11 +384,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
       if (item.name === "separator") return true;
 
       // Some extensions may be disabled, remove corresponding menu items
-      if (
-        item.name &&
-        !commands[item.name] &&
-        !commands[`create${capitalize(item.name)}`]
-      ) {
+      if (item.name && !commands[item.name] && !commands[`create${capitalize(item.name)}`]) {
         return false;
       }
 
@@ -441,10 +398,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
       if (!filterable) {
         return item;
       }
-      return (
-        (item.title || "").toLowerCase().includes(n) ||
-        (item.keywords || "").toLowerCase().includes(n)
-      );
+      return (item.title || "").toLowerCase().includes(n) || (item.keywords || "").toLowerCase().includes(n);
     });
 
     return filterExcessSeparators(filtered);
@@ -457,21 +411,12 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
 
     return (
       <Portal>
-        <Wrapper
-          id={this.props.id || "block-menu-container"}
-          active={isActive}
-          ref={this.menuRef}
-          {...positioning}
-        >
+        <Wrapper id={this.props.id || "block-menu-container"} active={isActive} ref={this.menuRef} {...positioning}>
           {insertItem ? (
             <LinkInputWrapper>
               <LinkInput
                 type="text"
-                placeholder={
-                  insertItem.title
-                    ? dictionary.pasteLinkWithTitle(insertItem.title)
-                    : dictionary.pasteLink
-                }
+                placeholder={insertItem.title ? dictionary.pasteLinkWithTitle(insertItem.title) : dictionary.pasteLink}
                 onKeyDown={this.handleLinkInputKeydown}
                 onPaste={this.handleLinkInputPaste}
                 autoFocus
@@ -511,12 +456,7 @@ class CommandMenu<T = MenuItem> extends React.Component<Props<T>, State> {
           )}
           {uploadImage && (
             <VisuallyHidden>
-              <input
-                type="file"
-                ref={this.inputRef}
-                onChange={this.handleImagePicked}
-                accept="image/*"
-              />
+              <input type="file" ref={this.inputRef} onChange={this.handleImagePicked} accept="image/*" />
             </VisuallyHidden>
           )}
         </Wrapper>
@@ -574,12 +514,10 @@ export const Wrapper = styled.div<{
   left: ${props => props.left}px;
   background-color: ${props => props.theme.blockToolbarBackground};
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
-    rgba(0, 0, 0, 0.08) 0px 4px 8px, rgba(0, 0, 0, 0.08) 0px 2px 4px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.08) 0px 4px 8px, rgba(0, 0, 0, 0.08) 0px 2px 4px;
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    transform 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: opacity 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   transition-delay: 150ms;
   line-height: 0;
   box-sizing: border-box;

@@ -9,26 +9,15 @@
  */
 
 export function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrideValue) {
-  // console.log(
-  //   "overrideCol",
-  //   overrideCol,
-  //   "cellMinWidth",
-  //   cellMinWidth,
-  //   "overrideValue",
-  //   overrideValue
-  // );
   let totalWidth = 0;
   let fixedWidth = true;
   let nextDOM = colgroup.firstChild;
   // eslint-disable-next-line prefer-const
   let row = node.firstChild;
-  // console.log("nextDom", nextDOM, "row", row.child(0));
   for (let i = 0, col = 0; i < row.childCount; i++) {
     const { colspan, colwidth } = row.child(i).attrs;
-    // console.log("colspan", colspan, "colwidth", colwidth);
     for (let j = 0; j < colspan; j++, col++) {
       const hasWidth = overrideCol == col ? overrideValue : colwidth && colwidth[j];
-      console.log("hasWidth++", hasWidth);
       const cssWidth = hasWidth ? hasWidth + "px" : "";
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;

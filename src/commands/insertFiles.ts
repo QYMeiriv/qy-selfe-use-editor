@@ -1,6 +1,4 @@
-import uploadPlaceholderPlugin, {
-  findPlaceholder,
-} from "../lib/uploadPlaceholder";
+import uploadPlaceholderPlugin, { findPlaceholder } from "../lib/uploadPlaceholder";
 import { ToastType } from "../types";
 
 const insertFiles = function(view, event, pos, files, options) {
@@ -8,18 +6,10 @@ const insertFiles = function(view, event, pos, files, options) {
   const images = files.filter(file => /image/i.test(file.type));
   if (images.length === 0) return;
 
-  const {
-    dictionary,
-    uploadImage,
-    onImageUploadStart,
-    onImageUploadStop,
-    onShowToast,
-  } = options;
+  const { dictionary, uploadImage, onImageUploadStart, onImageUploadStop, onShowToast } = options;
 
   if (!uploadImage) {
-    console.warn(
-      "uploadImage callback must be defined to handle image uploads."
-    );
+    console.warn("uploadImage callback must be defined to handle image uploads.");
     return;
   }
 
@@ -59,8 +49,6 @@ const insertFiles = function(view, event, pos, files, options) {
 
         newImg.onload = () => {
           const pos = findPlaceholder(view.state, id);
-
-          console.log("newImage", pos);
 
           // if the content around the placeholder has been deleted
           // then forget about inserting this image

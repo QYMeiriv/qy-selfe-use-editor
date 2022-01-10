@@ -1,14 +1,5 @@
-import {
-  splitListItem,
-  sinkListItem,
-  liftListItem,
-} from "prosemirror-schema-list";
-import {
-  Transaction,
-  EditorState,
-  Plugin,
-  TextSelection,
-} from "prosemirror-state";
+import { splitListItem, sinkListItem, liftListItem } from "prosemirror-schema-list";
+import { Transaction, EditorState, Plugin, TextSelection } from "prosemirror-state";
 import { DecorationSet, Decoration } from "prosemirror-view";
 import { findParentNodeClosestToPos } from "prosemirror-utils";
 
@@ -39,12 +30,7 @@ export default class ListItem extends Node {
           init() {
             return DecorationSet.empty;
           },
-          apply: (
-            tr: Transaction,
-            set: DecorationSet,
-            oldState: EditorState,
-            newState: EditorState
-          ) => {
+          apply: (tr: Transaction, set: DecorationSet, oldState: EditorState, newState: EditorState) => {
             const action = tr.getMeta("li");
             if (!action && !tr.docChanged) {
               return set;
@@ -57,18 +43,15 @@ export default class ListItem extends Node {
               case "mouseover": {
                 const result = findParentNodeClosestToPos(
                   newState.doc.resolve(action.pos),
-                  node =>
-                    node.type.name === this.name ||
-                    node.type.name === "checkbox_item"
+                  node => node.type.name === this.name || node.type.name === "checkbox_item"
                 );
 
                 if (!result) {
                   return set;
                 }
 
-                const list = findParentNodeClosestToPos(
-                  newState.doc.resolve(action.pos),
-                  node => isList(node, this.editor.schema)
+                const list = findParentNodeClosestToPos(newState.doc.resolve(action.pos), node =>
+                  isList(node, this.editor.schema)
                 );
 
                 if (!list) {
@@ -97,34 +80,22 @@ export default class ListItem extends Node {
                       hover: true,
                     }
                   ),
-                  Decoration.node(
-                    result.pos,
-                    result.pos + result.node.nodeSize,
-                    {
-                      class: `counter-${counterLength}`,
-                    }
-                  ),
+                  Decoration.node(result.pos, result.pos + result.node.nodeSize, {
+                    class: `counter-${counterLength}`,
+                  }),
                 ]);
               }
               case "mouseout": {
                 const result = findParentNodeClosestToPos(
                   newState.doc.resolve(action.pos),
-                  node =>
-                    node.type.name === this.name ||
-                    node.type.name === "checkbox_item"
+                  node => node.type.name === this.name || node.type.name === "checkbox_item"
                 );
 
                 if (!result) {
                   return set;
                 }
 
-                return set.remove(
-                  set.find(
-                    result.pos,
-                    result.pos + result.node.nodeSize,
-                    spec => spec.hover
-                  )
-                );
+                return set.remove(set.find(result.pos, result.pos + result.node.nodeSize, spec => spec.hover));
               }
               default:
             }
@@ -214,11 +185,7 @@ export default class ListItem extends Node {
         const [li, pos] = result;
         const $pos = state.doc.resolve(pos);
 
-        if (
-          !$pos.nodeBefore ||
-          !["list_item", "checkbox_item"].includes($pos.nodeBefore.type.name)
-        ) {
-          console.log("Node before not a list item");
+        if (!$pos.nodeBefore || !["list_item", "checkbox_item"].includes($pos.nodeBefore.type.name)) {
           return false;
         }
 
@@ -241,11 +208,7 @@ export default class ListItem extends Node {
         const [li, pos] = result;
         const $pos = state.doc.resolve(pos + li.nodeSize);
 
-        if (
-          !$pos.nodeAfter ||
-          !["list_item", "checkbox_item"].includes($pos.nodeAfter.type.name)
-        ) {
-          console.log("Node after not a list item");
+        if (!$pos.nodeAfter || !["list_item", "checkbox_item"].includes($pos.nodeAfter.type.name)) {
           return false;
         }
 
