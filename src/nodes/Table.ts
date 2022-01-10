@@ -68,7 +68,10 @@ export default class Table extends Node {
         dispatch(transaction);
       },
       addColumnBefore: () => addColumnBefore,
-      addColumnAfter: () => addColumnAfter,
+      addColumnAfter: () => {
+        console.log("向后", schema);
+        return addColumnAfter;
+      },
       deleteColumn: () => deleteColumn,
       addRowAfter: ({ index }) => (state, dispatch) => {
         if (index === 0) {

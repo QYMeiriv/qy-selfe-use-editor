@@ -728,6 +728,7 @@ export const StyledEditor = styled("div")<{
     border-radius: 4px;
     margin-top: 1em;
     box-sizing: border-box;
+    table-layout: fixed;
 
     * {
       box-sizing: border-box;
@@ -752,6 +753,8 @@ export const StyledEditor = styled("div")<{
       text-align: ${props => (props.rtl ? "right" : "left")};
       min-width: 100px;
     }
+
+
 
     .selectedCell {
       background: ${props =>

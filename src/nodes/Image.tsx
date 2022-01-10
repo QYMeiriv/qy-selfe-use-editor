@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DownloadIcon } from "outline-icons";
-import { Plugin, TextSelection, NodeSelection } from "prosemirror-state";
+import { NodeSelection, Plugin, TextSelection } from "prosemirror-state";
 import { InputRule } from "prosemirror-inputrules";
 import styled from "styled-components";
 import ImageZoom from "react-medium-image-zoom";
@@ -175,7 +175,6 @@ export default class Image extends Node {
               src: dom.getAttribute("src"),
               alt: dom.getAttribute("alt"),
               title: dom.getAttribute("title"),
-              width: dom.getAttribute("width"),
             };
           },
         },
@@ -192,6 +191,10 @@ export default class Image extends Node {
         ];
       },
     };
+  }
+
+  get plugins() {
+    return [uploadPlaceholderPlugin, uploadPlugin(this.options)];
   }
 
   handleKeyDown = ({ node, getPos }) => event => {
@@ -528,10 +531,6 @@ export default class Image extends Node {
         return tr;
       }),
     ];
-  }
-
-  get plugins() {
-    return [uploadPlaceholderPlugin, uploadPlugin(this.options)];
   }
 }
 

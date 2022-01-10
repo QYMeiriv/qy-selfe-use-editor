@@ -43,6 +43,7 @@ const insertFiles = function(view, event, pos, files, options) {
     // happening in the background in parallel.
     uploadImage(file)
       .then(src => {
+        console.log("file", file);
         // otherwise, insert it at the placeholder's position, and remove
         // the placeholder itself
         const newImg = new Image();

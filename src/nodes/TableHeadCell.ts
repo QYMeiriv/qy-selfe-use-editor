@@ -1,5 +1,6 @@
 import { DecorationSet, Decoration } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
+
 import { isColumnSelected, getCellsInRow } from "prosemirror-utils";
 import Node from "./Node";
 
@@ -24,7 +25,7 @@ export default class TableHeadCell extends Node {
         colspan: { default: 1 },
         rowspan: { default: 1 },
         alignment: { default: null },
-        colwidth: { default: null },
+        colwidth: { default: [305] },
       },
       cellAttributes: {
         background: {
@@ -59,7 +60,6 @@ export default class TableHeadCell extends Node {
             const { doc, selection } = state;
             const decorations: Decoration[] = [];
             const cells = getCellsInRow(0)(selection);
-
             if (cells) {
               cells.forEach(({ pos }, index) => {
                 decorations.push(

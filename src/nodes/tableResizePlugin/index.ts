@@ -45,7 +45,6 @@ export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = Tabl
         const pluginState = key.getState(state);
         if (pluginState.activeHandle > -1) return handleDecorations(state, pluginState.activeHandle);
       },
-
       nodeViews: {},
     },
   });
@@ -78,7 +77,7 @@ function domCellAround(target) {
   return target;
 }
 
-export function pointsAtCell($pos) {
+function pointsAtCell($pos) {
   return $pos.parent.type.spec.tableRole == "row" && $pos.nodeAfter;
 }
 
@@ -157,15 +156,43 @@ function handleMouseDown(view, event, cellMinWidth) {
       setDragging: { startX: event.clientX, startWidth: width },
     })
   );
+  // const inTr = view.state.tr.insertText("CoderQ<150>", 1, 4);
+  // view.dispatch(inTr);
 
   // 拖动放开之后触发的事件
   function finish(event) {
     window.removeEventListener("mouseup", finish);
     window.removeEventListener("mousemove", move);
     const pluginState = key.getState(view.state);
+    // console.log(
+    //   "放手",
+    //   draggedWidth(pluginState.dragging, event, cellMinWidth),
+    //   "view.state.tr",
+    //   tr
+    // );
+    // console.log("inTr", inTr);
+    // view.dispatch(inTr);
     if (pluginState.dragging) {
       updateColumnWidth(view, pluginState.activeHandle, draggedWidth(pluginState.dragging, event, cellMinWidth));
       view.dispatch(view.state.tr.setMeta(key, { setDragging: null }));
+
+      let a;
+      // const { from, to } = view.state.selection;
+      // const TextNode = view.state.schema.text("列宽<" + `${newWidth}>`);
+      // const CoNode = view.state.schema.nodes.paragraph.create(null, TextNode);
+
+      // view.state.doc.nodesBetween(from, to, (node, startPos) => {
+      //   console.log("node", node, "startPos", startPos);
+      //   if (startPos === 3) {
+      //     const newTr = view.state.tr.replaceWith(
+      //       startPos,
+      //       startPos + node.nodeSize,
+      //       CoNode
+      //     );
+      //     console.log("tttt", newTr);
+      //     view.dispatch(newTr);
+      //   }
+      // });
     }
   }
 
@@ -205,6 +232,8 @@ function draggedWidth(dragging, event, cellMinWidth) {
 }
 
 function updateColumnWidth(view, cell, width) {
+  console.log("放手");
+  let newColWidth = 0;
   const $cell = view.state.doc.resolve(cell);
   const table = $cell.node(-1),
     map = TableMap.get(table),
@@ -222,8 +251,20 @@ function updateColumnWidth(view, cell, width) {
     const colwidth = attrs.colwidth ? attrs.colwidth.slice() : zeroes(attrs.colspan);
     colwidth[index] = width;
     tr.setNodeMarkup(start + pos, null, setAttr(attrs, "colwidth", colwidth));
+    if (!row) {
+      newColWidth = colwidth;
+    }
   }
-  if (tr.docChanged) view.dispatch(tr);
+  if (tr.docChanged) {
+    view.dispatch(tr);
+
+    const { from, to } = tr.selection;
+    console.log(`当前的坐标，from: ${from}, to: ${to}`);
+    console.log(`当前修改表格内容的开头, map: ${map.map[col] + 3}`);
+    console.log(`当前修改表格内容的结尾, nodeSize: ${map.map[col] + 3 + 7}`);
+    console.log(`当前选择的下标, col： ${col}`);
+    console.log(`当前存储的TableMap数据结构: TableMap: ${map.map}`);
+  }
 }
 
 function zeroes(n) {

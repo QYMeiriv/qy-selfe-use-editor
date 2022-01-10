@@ -89,16 +89,16 @@ Blockquotes.args = {
 
 export const Tables = Template.bind({});
 Tables.args = {
-  defaultValue: `# Tables
-
-Simple tables with alignment and row/col editing are supported, they can be inserted from the slash menu
-
-| Editor      | Rank | React | Collaborative |
-|-------------|------|-------|--------------:|
-| Prosemirror | A    |   No  |           Yes |
-| Slate       | B    |  Yes  |            No |
-| CKEdit      | C    |   No  |           Yes |
+  defaultValue: `
+| 列宽<150>    | 列宽<155> | 列宽<308> | 列宽<300> | 列宽<200> |
+|-------------|------|-------|---------------|---------|
+| Prosemirror | A    |   No  |           Yes | sadasd  |
+| Slate       | B    |  Yes  |            No | dasdasd |
+| CKEdit      | C    |   No  |           Yes | asdasda |
 `,
+  onChange: val => {
+    // console.log("val", val());
+  },
 };
 
 export const Marks = Template.bind({});
@@ -205,6 +205,9 @@ export const Images = Template.bind({});
 Images.args = {
   defaultValue: `# Images
 ![我的头像](http://ls.liulianpisa.top:6724/static/image/671/c1e93531e7ebd81350d1315883a60de11639052442.png)`,
+  onChange: fn => {
+    console.log("VALUE", fn());
+  },
 };
 
 export const Focused = Template.bind({});
