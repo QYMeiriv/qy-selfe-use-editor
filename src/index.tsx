@@ -22,6 +22,7 @@ import BlockMenu from "./components/BlockMenu";
 import EmojiMenu from "./components/EmojiMenu";
 import LinkToolbar from "./components/LinkToolbar";
 import Tooltip from "./components/Tooltip";
+import SearchBar from "./components/SearchBar";
 
 import Extension from "./lib/Extension";
 import ExtensionManager from "./lib/ExtensionManager";
@@ -77,6 +78,7 @@ import Placeholder from "./plugins/Placeholder";
 import SmartText from "./plugins/SmartText";
 import TrailingNode from "./plugins/TrailingNode";
 import PasteHandler from "./plugins/PasteHandler";
+import Search from "./plugins/Search";
 import { PluginSimple } from "markdown-it";
 
 export { schema, parser, serializer, renderToHtml } from "./server";
@@ -135,11 +137,7 @@ export type Props = {
   handleDOMEvents?: {
     [name: string]: (view: EditorView, event: Event) => boolean;
   };
-  changeImgSize?: (
-    imgWidth: number,
-    imgHeight: number,
-    url: string
-  ) => Promise<string>;
+  changeImgSize?: (imgWidth: number, imgHeight: number, url: string) => Promise<string>;
   uploadImage?: (file: File) => Promise<string>;
   onBlur?: () => void;
   onFocus?: () => void;
@@ -283,10 +281,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
 
     if (
       this.isBlurred &&
-      (this.state.isEditorFocused ||
-        this.state.blockMenuOpen ||
-        this.state.linkMenuOpen ||
-        this.state.selectionMenuOpen)
+      (this.state.isEditorFocused || this.state.blockMenuOpen || this.state.linkMenuOpen || this.state.selectionMenuOpen)
     ) {
       this.isBlurred = false;
       if (this.props.onFocus) {
@@ -319,6 +314,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     return new ExtensionManager(
       [
         ...[
+          new Search(),
           new Doc(),
           new HardBreak(),
           new Paragraph(),
@@ -412,9 +408,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
         ].filter(extension => {
           // Optionaly disable extensions
           if (this.props.disableExtensions) {
-            return !(this.props.disableExtensions as string[]).includes(
-              extension.name
-            );
+            return !(this.props.disableExtensions as string[]).includes(extension.name);
           }
           return true;
         }),
@@ -536,11 +530,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     }
 
     const isEditingCheckbox = tr => {
-      return tr.steps.some(
-        (step: Step) =>
-          step.slice?.content?.firstChild?.type.name ===
-          this.schema.nodes.checkbox_item.name
-      );
+      return tr.steps.some((step: Step) => step.slice?.content?.firstChild?.type.name === this.schema.nodes.checkbox_item.name);
     };
 
     const self = this; // eslint-disable-line
@@ -551,9 +541,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
       handleDOMEvents: this.props.handleDOMEvents,
       dispatchTransaction: function(transaction) {
         // callback is bound to have the view instance as its this binding
-        const { state, transactions } = this.state.applyTransaction(
-          transaction
-        );
+        const { state, transactions } = this.state.applyTransaction(transaction);
 
         this.updateState(state);
 
@@ -562,9 +550,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
         // know
         if (
           transactions.some(tr => tr.docChanged) &&
-          (!self.props.readOnly ||
-            (self.props.readOnlyWriteCheckboxes &&
-              transactions.some(isEditingCheckbox)))
+          (!self.props.readOnly || (self.props.readOnlyWriteCheckboxes && transactions.some(isEditingCheckbox)))
         ) {
           self.handleChange();
         }
@@ -600,9 +586,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
   calculateDir = () => {
     if (!this.element) return;
 
-    const isRTL =
-      this.props.dir === "rtl" ||
-      getComputedStyle(this.element).direction === "rtl";
+    const isRTL = this.props.dir === "rtl" || getComputedStyle(this.element).direction === "rtl";
 
     if (this.state.isRTL !== isRTL) {
       this.setState({ isRTL });
@@ -713,8 +697,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
         }
 
         // record that we've seen this slug for the next loop
-        previouslySeen[slug] =
-          previouslySeen[slug] !== undefined ? previouslySeen[slug] + 1 : 1;
+        previouslySeen[slug] = previouslySeen[slug] !== undefined ? previouslySeen[slug] + 1 : 1;
 
         headings.push({
           title: node.textContent,
@@ -730,35 +713,19 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     return this.props.theme || (this.props.dark ? darkTheme : lightTheme);
   };
 
-  dictionary = memoize(
-    (providedDictionary?: Partial<typeof baseDictionary>) => {
-      return { ...baseDictionary, ...providedDictionary };
-    }
-  );
+  dictionary = memoize((providedDictionary?: Partial<typeof baseDictionary>) => {
+    return { ...baseDictionary, ...providedDictionary };
+  });
 
   render() {
-    const {
-      dir,
-      readOnly,
-      readOnlyWriteCheckboxes,
-      style,
-      tooltip,
-      className,
-      onKeyDown,
-    } = this.props;
+    const { dir, readOnly, readOnlyWriteCheckboxes, style, tooltip, className, onKeyDown } = this.props;
     const { isRTL } = this.state;
     const dictionary = this.dictionary(this.props.dictionary);
 
     return (
-      <Flex
-        onKeyDown={onKeyDown}
-        style={style}
-        className={className}
-        align="flex-start"
-        justify="center"
-        dir={dir}
-        column
-      >
+      <Flex onKeyDown={onKeyDown} style={style} className={className} align="flex-start" justify="center" dir={dir} column>
+        {/* 查找替换模块 */}
+        <SearchBar commands={this.commands} />
         <ThemeProvider theme={this.theme()}>
           <React.Fragment>
             <StyledEditor
