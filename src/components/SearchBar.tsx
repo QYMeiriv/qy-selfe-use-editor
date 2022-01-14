@@ -56,7 +56,6 @@ const SearchWrapper = styled.div`
 
 const SearchItem = styled.div`
   box-sizing: border-box;
-  width: 34rem;
   padding: 10px 13px;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.1);
