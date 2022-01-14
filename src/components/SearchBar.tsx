@@ -35,22 +35,29 @@ function SearchBar({ commands }: Props) {
   };
 
   return (
-    <SearchItem>
-      <SearchInput type="text" value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="输入关键词" />
-      <SearchInput type="text" value={replaceText} onChange={e => setReplaceText(e.target.value)} placeholder="输入替换字符" />
-      <SearchButton onClick={onSearch}>查找</SearchButton>
-      {/* <SearchButton onClick={onReplace}>替换</SearchButton> */}
-      <SearchButton onClick={onReplaceAll}>替换全部</SearchButton>
-      <SearchButton onClick={onClean}>清除状态</SearchButton>
-    </SearchItem>
+    <SearchWrapper>
+      <SearchItem>
+        <SearchInput type="text" value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="输入关键词" />
+        <SearchInput type="text" value={replaceText} onChange={e => setReplaceText(e.target.value)} placeholder="输入替换字符" />
+        <SearchButton onClick={onSearch}>查找</SearchButton>
+        {/* <SearchButton onClick={onReplace}>替换</SearchButton> */}
+        <SearchButton onClick={onReplaceAll}>替换全部</SearchButton>
+        <SearchButton onClick={onClean}>清除状态</SearchButton>
+      </SearchItem>
+    </SearchWrapper>
   );
 }
 
+const SearchWrapper = styled.div`
+  display: flex;
+  justify-content: end;
+  width: 100%;
+`;
+
 const SearchItem = styled.div`
+  box-sizing: border-box;
+  width: 34rem;
   padding: 10px 13px;
-  position: fixed;
-  right: 20px;
-  top: 8px;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.1);
 `;
