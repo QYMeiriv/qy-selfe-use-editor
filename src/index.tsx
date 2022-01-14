@@ -725,7 +725,8 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     return (
       <Flex onKeyDown={onKeyDown} style={style} className={className} align="flex-start" justify="center" dir={dir} column>
         {/* 查找替换模块 */}
-        <SearchBar commands={this.commands} />
+        {readOnly ? null : <SearchBar commands={this.commands} />}
+
         <ThemeProvider theme={this.theme()}>
           <React.Fragment>
             <StyledEditor
