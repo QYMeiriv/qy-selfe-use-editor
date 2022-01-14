@@ -48,7 +48,7 @@ export default class Search extends Extension {
 
   _search(doc) {
     this.results = [];
-    const mergedTextNodes = [];
+    const mergedTextNodes = [] as any[];
     let index = 0;
 
     if (!this.searchTerm) {
