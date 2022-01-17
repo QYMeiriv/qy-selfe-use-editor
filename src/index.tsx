@@ -93,6 +93,7 @@ export type Props = {
   defaultValue: string;
   placeholder: string;
   extensions: Extension[];
+  isSearch: boolean;
   disableExtensions?: (
     | "strong"
     | "code_inline"
@@ -718,14 +719,14 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
   });
 
   render() {
-    const { dir, readOnly, readOnlyWriteCheckboxes, style, tooltip, className, onKeyDown } = this.props;
+    const { dir, readOnly, readOnlyWriteCheckboxes, style, tooltip, className, onKeyDown, isSearch } = this.props;
     const { isRTL } = this.state;
     const dictionary = this.dictionary(this.props.dictionary);
 
     return (
       <Flex onKeyDown={onKeyDown} style={style} className={className} align="flex-start" justify="center" dir={dir} column>
         {/* 查找替换模块 */}
-        {readOnly ? null : <SearchBar commands={this.commands} />}
+        {readOnly || !isSearch ? null : <SearchBar commands={this.commands} />}
 
         <ThemeProvider theme={this.theme()}>
           <React.Fragment>

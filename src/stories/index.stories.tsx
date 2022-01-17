@@ -36,6 +36,8 @@ Just an easy to use **Markdown** editor with \`slash commands\``,
 
 export const Emoji = Template.bind({});
 Emoji.args = {
+  readOnly: false,
+  isSearch: true,
   defaultValue: `# Emoji
 
 \
@@ -152,7 +154,7 @@ Warning
 
 export const ReadOnly = Template.bind({});
 ReadOnly.args = {
-  readOnly: true,
+  readOnly: false,
   defaultValue: `# Read Only
 
 The content of this editor cannot be edited`,

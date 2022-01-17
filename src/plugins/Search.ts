@@ -184,8 +184,6 @@ export default class Search extends Extension {
               return this.createDeco(tr.doc);
             }
 
-            console.log("21312312");
-
             if (tr.docChanged) {
               return old.map(tr.mapping, tr.doc);
             }
