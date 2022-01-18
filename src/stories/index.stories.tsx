@@ -36,8 +36,6 @@ Just an easy to use **Markdown** editor with \`slash commands\``,
 
 export const Emoji = Template.bind({});
 Emoji.args = {
-  readOnly: false,
-  isSearch: true,
   defaultValue: `# Emoji
 
 \
@@ -91,6 +89,8 @@ Blockquotes.args = {
 
 export const Tables = Template.bind({});
 Tables.args = {
+  readOnly: false,
+  isSearch: true,
   defaultValue: `# Tables
 
 Simple tables with alignment and row/col editing are supported, they can be inserted from the slash menu

@@ -126,10 +126,6 @@ export default class Search extends Extension {
   find(searchTerm) {
     return (state, dispatch) => {
       this.searchTerm = this.options.disableRegex ? searchTerm.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&") : searchTerm;
-
-      console.log("state：", state.tr);
-      console.log("dispatch：", dispatch);
-
       this.updateView(state, dispatch);
     };
   }

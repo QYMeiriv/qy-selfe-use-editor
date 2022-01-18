@@ -1,17 +1,59 @@
 import * as React from "react";
 import styled from "styled-components";
+// import useUnmount from "../hooks/useUnmount";
 
 export type Props = {
   commands: Record<string, any>;
 };
+enum CacheEnum {
+  EST = "EDITOR_SEARCH_TEXT",
+  ERT = "EDITOR_REPLACE_TEXT",
+}
 
 function SearchBar({ commands }: Props) {
   const [searchText, setSearchText] = React.useState("");
   const [replaceText, setReplaceText] = React.useState("");
+  const [isHasSearch, setIsHasSearch] = React.useState(false);
+
+  React.useEffect(() => {
+    const rText = localStorage.getItem(CacheEnum.ERT);
+    const sText = localStorage.getItem(CacheEnum.EST);
+    rText && setReplaceText(rText);
+    if (sText) {
+      setSearchText(sText);
+      setIsHasSearch(true);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    onSearch();
+  }, [isHasSearch]);
+
+  // useUnmount(() => {
+  //   onClean();
+  // });
+
+  // 保存查询字符
+  const onSaveText = (value: string, type: CacheEnum.EST | CacheEnum.ERT) => {
+    localStorage.setItem(type, value);
+    switch (type) {
+      case CacheEnum.EST:
+        setSearchText(value);
+        break;
+      case CacheEnum.ERT:
+        setReplaceText(value);
+        break;
+      default:
+        break;
+    }
+  };
+
   // 查询当前文章字符
   const onSearch = () => {
+    if (!searchText) {
+      return;
+    }
     commands.find(searchText);
-    console.log("查询字符", searchText);
   };
 
   // // 替换字符
@@ -25,20 +67,30 @@ function SearchBar({ commands }: Props) {
     commands.clearSearch();
     setSearchText("");
     setReplaceText("");
-    console.log("清除状态", commands);
+    localStorage.removeItem(CacheEnum.ERT);
+    localStorage.removeItem(CacheEnum.EST);
   };
 
   // 替换全部
   const onReplaceAll = () => {
     commands.replaceAll(replaceText);
-    console.log("替换全部");
   };
 
   return (
     <SearchWrapper>
       <SearchItem>
-        <SearchInput type="text" value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="输入关键词" />
-        <SearchInput type="text" value={replaceText} onChange={e => setReplaceText(e.target.value)} placeholder="输入替换字符" />
+        <SearchInput
+          type="text"
+          value={searchText}
+          onChange={e => onSaveText(e.target.value, CacheEnum.EST)}
+          placeholder="输入关键词"
+        />
+        <SearchInput
+          type="text"
+          value={replaceText}
+          onChange={e => onSaveText(e.target.value, CacheEnum.ERT)}
+          placeholder="输入替换字符"
+        />
         <SearchButton onClick={onSearch}>查找</SearchButton>
         {/* <SearchButton onClick={onReplace}>替换</SearchButton> */}
         <SearchButton onClick={onReplaceAll}>替换全部</SearchButton>
