@@ -1,5 +1,5 @@
 const colors = {
-  almostBlack: "#181A1B",
+  almostBlack: "#404040",
   lightBlack: "#2F3336",
   almostWhite: "#E6E6E6",
   white: "#FFF",
@@ -16,9 +16,12 @@ const colors = {
 export const base = {
   ...colors,
   fontFamily:
-    "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen, Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
-  fontFamilyMono:
-    "'SFMono-Regular',Consolas,'Liberation Mono', Menlo, Courier,monospace",
+    "'STLiti',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen, Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
+  // fontFamily:
+  //   "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen, Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
+  // fontFamilyMono: "'SFMono-Regular',Consolas,'Liberation Mono', Menlo, Courier,monospace",
+  fontFamilyMono: "'STLiti',Consolas,'Liberation Mono', Menlo, Courier,monospace",
+  letterSpacing: "0.08em",
   fontWeight: 400,
   zIndex: 100,
   link: colors.primary,

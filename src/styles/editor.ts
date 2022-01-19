@@ -8,9 +8,10 @@ export const StyledEditor = styled("div")<{
   color: ${props => props.theme.text};
   background: ${props => props.theme.background};
   font-family: ${props => props.theme.fontFamily};
+  letter-spacing: ${props => props.theme.letterSpacing};
   font-weight: ${props => props.theme.fontWeight};
-  font-size: 1em;
-  line-height: 1.7em;
+  font-size: 0.9em;
+  line-height: 1.74em;
   width: 100%;
 
   .ProseMirror {

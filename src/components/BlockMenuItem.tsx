@@ -14,15 +14,7 @@ export type Props = {
   containerId?: string;
 };
 
-function BlockMenuItem({
-  selected,
-  disabled,
-  onClick,
-  title,
-  shortcut,
-  icon,
-  containerId = "block-menu-container",
-}: Props) {
+function BlockMenuItem({ selected, disabled, onClick, title, shortcut, icon, containerId = "block-menu-container" }: Props) {
   const Icon = icon;
 
   const ref = React.useCallback(
@@ -44,18 +36,10 @@ function BlockMenuItem({
   );
 
   return (
-    <MenuItem
-      selected={selected}
-      onClick={disabled ? undefined : onClick}
-      ref={ref}
-    >
+    <MenuItem selected={selected} onClick={disabled ? undefined : onClick} ref={ref}>
       {Icon && (
         <>
-          <Icon
-            color={
-              selected ? theme.blockToolbarIconSelected : theme.blockToolbarIcon
-            }
-          />
+          <Icon color={selected ? theme.blockToolbarIconSelected : theme.blockToolbarIcon} />
           &nbsp;&nbsp;
         </>
       )}
@@ -79,15 +63,9 @@ const MenuItem = styled.button<{
   cursor: pointer;
   border: none;
   opacity: ${props => (props.disabled ? ".5" : "1")};
-  color: ${props =>
-    props.selected
-      ? props.theme.blockToolbarTextSelected
-      : props.theme.blockToolbarText};
+  color: ${props => (props.selected ? props.theme.blockToolbarTextSelected : props.theme.blockToolbarText)};
   background: ${props =>
-    props.selected
-      ? props.theme.blockToolbarSelectedBackground ||
-        props.theme.blockToolbarTrigger
-      : "none"};
+    props.selected ? props.theme.blockToolbarSelectedBackground || props.theme.blockToolbarTrigger : "none"};
   padding: 0 16px;
   outline: none;
 
@@ -96,8 +74,7 @@ const MenuItem = styled.button<{
     color: ${props => props.theme.blockToolbarTextSelected};
     background: ${props =>
       props.selected
-        ? props.theme.blockToolbarSelectedBackground ||
-          props.theme.blockToolbarTrigger
+        ? props.theme.blockToolbarSelectedBackground || props.theme.blockToolbarTrigger
         : props.theme.blockToolbarHoverBackground};
   }
 `;

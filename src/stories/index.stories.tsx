@@ -30,7 +30,7 @@ const Template: Story<Props> = args => <Editor {...args} />;
 export const Default = Template.bind({});
 Default.args = {
   defaultValue: `# Welcome
-
+  只是一个简单易用的 Markdown 编辑器与斜杠命令
 Just an easy to use **Markdown** editor with \`slash commands\``,
 };
 
