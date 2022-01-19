@@ -15,12 +15,12 @@ const colors = {
 
 export const base = {
   ...colors,
-  fontFamily:
-    "'STLiti',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen, Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
   // fontFamily:
-  //   "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen, Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
-  // fontFamilyMono: "'SFMono-Regular',Consolas,'Liberation Mono', Menlo, Courier,monospace",
-  fontFamilyMono: "'STLiti',Consolas,'Liberation Mono', Menlo, Courier,monospace",
+  //   "'STLiti',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen, Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
+  fontFamily:
+    "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen, Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif",
+  fontFamilyMono: "'SFMono-Regular',Consolas,'Liberation Mono', Menlo, Courier,monospace",
+  // fontFamilyMono: "'STLiti',Consolas,'Liberation Mono', Menlo, Courier,monospace",
   letterSpacing: "0.08em",
   fontWeight: 400,
   zIndex: 100,
