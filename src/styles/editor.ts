@@ -10,7 +10,7 @@ export const StyledEditor = styled("div")<{
   font-family: ${props => props.theme.fontFamily};
   letter-spacing: ${props => props.theme.letterSpacing};
   font-weight: ${props => props.theme.fontWeight};
-  font-size: 0.9em;
+  font-size: 1em;
   line-height: 1.74em;
   width: 100%;
 
